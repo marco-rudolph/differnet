@@ -1,23 +1,21 @@
 # DifferNet
 
 This is the official repository to the WACV 2021 paper "[Same Same But DifferNet: Semi-Supervised Defect Detection with Normalizing Flows](
-https://cloud.tnt.uni-hannover.de/index.php/s/6Am9KaRGial2KCV)" by Marco Rudolph, Bastian Wandt and Bodo Rosenhahn.
+https://cloud.tnt.uni-hannover.de/index.php/s/KPOJF4Us6ci1QTm)" by Marco Rudolph, Bastian Wandt and Bodo Rosenhahn.
 
 If the only reason you ended up here is because you made a typo on 'different' - what was our intention - here is a shortened summary: We introduce a method that is able to find anomalies like defects on image data without having some of them in the training set.
 
 ## Getting Started
 
-We recommend to use Python 3.6 to run the code.
+You will need [Python 3.6](https://www.python.org/downloads) and the packages specified in _requirements.txt_.
+We recommend setting up a [virtual environment with pip](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+and installing the packages there.
 
-Required packages and versions:
+Install packages with:
 
-* pytorch (1.0.0, Build: py3.6_cuda9.0.176_cudnn7.4.1_1)
-* torchvision (0.2.2)
-* scikit-learn (0.22)
-* scipy (1.3.2)
-* numpy (1.17.4)
-* matplotlib (3.0.3)
-* tqdm (4.40.2)
+```
+$ pip install -r requirements.txt
+```
 
 ## Configure and Run
 
@@ -82,7 +80,7 @@ Please cite our paper in your publications if it helps your research. Even if it
 Another paper link because you missed the first one:
 
 * [Same Same But DifferNet: Semi-Supervised Defect Detection with Normalizing Flows](
-https://cloud.tnt.uni-hannover.de/index.php/s/6Am9KaRGial2KCV)
+https://cloud.tnt.uni-hannover.de/index.php/s/KPOJF4Us6ci1QTm)
 
 ## License
 
