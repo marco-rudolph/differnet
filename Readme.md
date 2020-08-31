@@ -1,7 +1,7 @@
 # DifferNet
 
 This is the official repository to the WACV 2021 paper "[Same Same But DifferNet: Semi-Supervised Defect Detection with Normalizing Flows](
-https://cloud.tnt.uni-hannover.de/index.php/s/KPOJF4Us6ci1QTm)" by Marco Rudolph, Bastian Wandt and Bodo Rosenhahn.
+https://arxiv.org/abs/2008.12577)" by Marco Rudolph, Bastian Wandt and Bodo Rosenhahn.
 
 If the only reason you ended up here is because you made a typo on 'different' - what was our intention - here is a shortened summary: We introduce a method that is able to find anomalies like defects on image data without having some of them in the training set.
 
@@ -80,7 +80,7 @@ Please cite our paper in your publications if it helps your research. Even if it
 Another paper link because you missed the first one:
 
 * [Same Same But DifferNet: Semi-Supervised Defect Detection with Normalizing Flows](
-https://cloud.tnt.uni-hannover.de/index.php/s/KPOJF4Us6ci1QTm)
+https://arxiv.org/abs/2008.12577)
 
 ## License
 
