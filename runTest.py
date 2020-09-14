@@ -18,9 +18,12 @@ from localization import export_gradient_maps
 
 def test(model, test_loader):
     print("Running test")
+    optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
     score_obs = Score_Observer('AUROC')
     # evaluate
+    model.to(c.device)
     model.eval()
+    epoch = 0
     if c.verbose:
         print('\nCompute loss and scores on test set:')
     test_loss = list()
@@ -37,7 +40,7 @@ def test(model, test_loader):
 
     test_loss = np.mean(np.array(test_loss))
     if c.verbose:
-        print('{:d} \t test_loss: {:.4f}'.format(test_loss))
+         print('Epoch: {:d} \t test_loss: {:.4f}'.format(epoch, test_loss))
 
     test_labels = np.concatenate(test_labels)
     is_anomaly = np.array([0 if l == 0 else 1 for l in test_labels])
@@ -47,9 +50,10 @@ def test(model, test_loader):
     score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
                     print_score=c.verbose or epoch == c.meta_epochs - 1)
 
-    # if c.grad_map_viz:
-    #     export_gradient_maps(model, test_loader, optimizer, -1)
+    if c.grad_map_viz:
+        export_gradient_maps(model, test_loader, optimizer, -1)
 
+##########################  Main ####################
 train_set, test_set = load_datasets(c.dataset_path, c.class_name)
 _, test_loader = make_dataloaders(train_set, test_set)
 time_start = time.time()
