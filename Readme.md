@@ -20,6 +20,14 @@ Install packages with:
 $ pip install -r requirements.txt
 ```
 
+Or install with for Windows as per [PyTorch official site](https://pytorch.org/get-started/locally/):
+
+```
+$ pip install torch===1.6.0 torchvision===0.7.0 -f https://download.pytorch.org/whl/torch_s
+table.html
+$ pip install -r requirements.txt
+```
+
 ## Configure and Run
 
 All configurations concerning data, model, training, visualization etc. can be made in _config.py_. The default configuration will run a training with paper-given parameters on the provided dummy dataset. This dataset contains images of 4 squares as normal examples and 4 circles as anomaly.
