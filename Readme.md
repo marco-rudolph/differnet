@@ -32,8 +32,17 @@ $ pip install -r requirements.txt
 
 All configurations concerning data, model, training, visualization etc. can be made in _config.py_. The default configuration will run a training with paper-given parameters on the provided dummy dataset. This dataset contains images of 4 squares as normal examples and 4 circles as anomaly.
 
-To start the training, just run _main.py_! If training on the dummy data does not lead to an AUROC of 1.0, something seems to be wrong.
+If you encounter GPU Out of Memory issue, you can reduce the neuron numbers in _config.py_
+```
+fc_internal = 1536 # number of neurons in hidden layers of s-t-networks
+```
+
+To start the training, just run _main.py_ as follows! If training on the dummy data does not lead to an AUROC of 1.0, something seems to be wrong.
 Please report us if you have issues when using the code.
+
+```
+$ python main.py
+```
 
 ## Data
 
