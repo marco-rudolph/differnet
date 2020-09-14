@@ -91,8 +91,8 @@ def train(train_loader, test_loader):
             score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
                             print_score=c.verbose or epoch == c.meta_epochs - 1)
 
-    if c.grad_map_viz and not (test_loader is None):
-        export_gradient_maps(model, test_loader, optimizer, -1)
+#    if c.grad_map_viz and not (test_loader is None):
+#        export_gradient_maps(model, test_loader, optimizer, -1)
 
     if c.save_model:
         model.to('cpu')
