@@ -47,6 +47,7 @@ def test(model, test_loader):
 
     z_grouped = torch.cat(test_z, dim=0).view(-1, c.n_transforms_test, c.n_feat)
     anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
+    print(f"test_labels={test_labels}, is_anomaly={is_anomaly},anomaly_score={anomaly_score}")
     score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
                     print_score=c.verbose or epoch == c.meta_epochs - 1)
 
@@ -93,7 +94,7 @@ def load_testloader(data_dir_test):
 # _, test_loader = make_dataloaders(train_set, test_set)
 
 test_loader = load_testloader("zerobox_dataset/zerobox_class/test")
-model = torch.load("model_zerobox_test")
+model = torch.load("model_zerobox_test", map_location=torch.device('cpu'))
 
 print("starting to run tests after loaded model and test dataset")
 time_start = time.time()
