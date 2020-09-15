@@ -58,7 +58,6 @@ train_set, test_set = load_datasets(c.dataset_path, c.class_name)
 _, test_loader = make_dataloaders(train_set, test_set)
 time_start = time.time()
 model = load_model(c.modelname)
-load_weights(model, c.modelname)
 test(model, test_loader)
 time_end = time.time()
 time_c = time_end - time_start  # 运行所花时间

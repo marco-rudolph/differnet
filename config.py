@@ -7,11 +7,12 @@ import torch
 torch.cuda.set_device(0)
 
 # data settings
-dataset_path = "dummy_dataset"
-class_name = "dummy_class"
-modelname = "dummy_test"
+dataset_path = "zerobox_dataset"
+class_name = "zerobox_class"
+modelname = "zerobox_test"
 
-img_size = (448, 448)
+# img_size = (448, 448)
+img_size = (480, 270)
 img_dims = [3] + list(img_size)
 add_img_noise = 0.01
 
@@ -39,7 +40,7 @@ batch_size_test = batch_size * n_transforms // n_transforms_test
 
 # total epochs = meta_epochs * sub_epochs
 # evaluation after <sub_epochs> epochs
-meta_epochs = 1
+meta_epochs = 10
 sub_epochs = 8
 
 # output settings
