@@ -53,12 +53,51 @@ def test(model, test_loader):
     if c.grad_map_viz:
         export_gradient_maps(model, test_loader, optimizer, -1)
 
+def load_testloader(data_dir_test):
+    def target_transform(target):
+        return class_perm[target]
+
+    classes = os.listdir(data_dir_test)
+    if 'good' not in classes:
+        print('There should exist a subdirectory "good". Read the doc of this function for further information.')
+        exit()
+    classes.sort()
+    class_perm = list()
+    class_idx = 1
+    for cl in classes:
+        if cl == 'good':
+            class_perm.append(0)
+        else:
+            class_perm.append(class_idx)
+            class_idx += 1
+
+    augmentative_transforms = []
+    if c.transf_rotations:
+        augmentative_transforms += [transforms.RandomRotation(180)]
+    if c.transf_brightness > 0.0 or c.transf_contrast > 0.0 or c.transf_saturation > 0.0:
+        augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
+                                                           saturation=c.transf_saturation)]
+
+    tfs = [transforms.Resize(c.img_size)] + augmentative_transforms + [transforms.ToTensor(),
+                                                                       transforms.Normalize(c.norm_mean, c.norm_std)]
+
+    transform_train = transforms.Compose(tfs)
+    testset = ImageFolderMultiTransform(data_dir_test, transform=transform_train, target_transform=target_transform,
+                                        n_transforms=c.n_transforms_test)
+    testloader = torch.utils.data.DataLoader(testset, pin_memory=True, batch_size=c.batch_size_test, shuffle=True,
+                                             drop_last=False)
+    return testloader
+
 ##########################  Main ####################
-train_set, test_set = load_datasets(c.dataset_path, c.class_name)
-_, test_loader = make_dataloaders(train_set, test_set)
+# train_set, test_set = load_datasets(c.dataset_path, c.class_name)
+# _, test_loader = make_dataloaders(train_set, test_set)
+
+test_loader = load_testloader("zerobox_dataset/zerobox_class/test")
+model = torch.load("model_zerobox_test")
+
+print("starting to run tests after loaded model and test dataset")
 time_start = time.time()
 # model = load_model(c.modelname)
-model = torch.load("model_zerobox_test")
 test(model, test_loader)
 time_end = time.time()
 time_c = time_end - time_start  # 运行所花时间
