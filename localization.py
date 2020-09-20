@@ -21,14 +21,24 @@ def save_imgs(inputs, grad, cnt):
         os.makedirs(export_dir)
 
     for g in range(grad.shape[0]):
-        normed_grad = (grad[g] - np.min(grad[g])) / (
-                np.max(grad[g]) - np.min(grad[g]))
+        normed_grad = (grad[g] - np.min(grad[g])) / (np.max(grad[g]) - np.min(grad[g]))
+        # normed_grad = grad[g]
+        print("{:d}: minGrad={:.2e}, maxGrad={:.2e}, max/min={:.2e}".format(
+            cnt,np.min(grad[g]), np.max(grad[g]),np.max(grad[g])/np.min(grad[g])))
         orig_image = inputs[g]
-        for image, file_suffix in [(normed_grad, '_gradient_map.png'), (orig_image, '_orig.png')]:
+        for image, file_suffix in [
+            (normed_grad, "_gradient_map.png"),
+            (orig_image, "_orig.png"),
+        ]:
             plt.clf()
             plt.imshow(image)
-            plt.axis('off')
-            plt.savefig(os.path.join(export_dir, str(cnt) + file_suffix), bbox_inches='tight', pad_inches=0)
+            #plt.imshow(image, vmin=0, vmax=1e13)
+            plt.axis("off")
+            plt.savefig(
+                os.path.join(export_dir, str(cnt) + file_suffix),
+                bbox_inches="tight",
+                pad_inches=0,
+            )
         cnt += 1
     return cnt
 

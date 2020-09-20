@@ -30,8 +30,9 @@ def test(model, test_loader):
     test_z = list()
     test_labels = list()
     with torch.no_grad():
-        for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):
+        for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):          
             inputs, labels = preprocess_batch(data)
+            print(f"i={i}: labels={labels}, size of inputs={inputs.size()}")
             z = model(inputs)
             loss = get_loss(z, model.nf.jacobian(run_forward=False))
             test_z.append(z)
@@ -94,7 +95,8 @@ def load_testloader(data_dir_test):
 # _, test_loader = make_dataloaders(train_set, test_set)
 
 test_loader = load_testloader("zerobox_dataset/zerobox_class/test")
-model = torch.load("model_zerobox_test", map_location=torch.device('cpu'))
+# model = torch.load("../zerobox-v2/zerobox_differnet_model.pt", map_location=torch.device('cpu'))
+model = torch.load("models/zerobox_test.pt", map_location=torch.device('cpu'))
 
 print("starting to run tests after loaded model and test dataset")
 time_start = time.time()

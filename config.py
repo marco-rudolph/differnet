@@ -36,8 +36,8 @@ n_feat = 256 * n_scales # do not change except you change the feature extractor
 # dataloader parameters
 n_transforms = 4 # number of transformations per sample in training
 n_transforms_test = 64 # number of transformations per sample in testing
-batch_size = 24 # actual batch size is this value multiplied by n_transforms(_test)
-batch_size_test = batch_size * n_transforms // n_transforms_test
+batch_size = 10 # actual batch size is this value multiplied by n_transforms(_test)
+batch_size_test = 1 # batch_size * n_transforms // n_transforms_test
 
 # total epochs = meta_epochs * sub_epochs
 # evaluation after <sub_epochs> epochs
