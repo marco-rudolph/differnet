@@ -19,7 +19,7 @@ from localization import export_gradient_maps
 def test(model, test_loader):
     print("Running test")
     optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
-    score_obs = Score_Observer('AUROC')
+    # score_obs = Score_Observer('AUROC')
     # evaluate
     model.to(c.device)
     model.eval()
@@ -49,10 +49,11 @@ def test(model, test_loader):
     z_grouped = torch.cat(test_z, dim=0).view(-1, c.n_transforms_test, c.n_feat)
     anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
     print(f"test_labels={test_labels}, is_anomaly={is_anomaly},anomaly_score={anomaly_score}")
-    score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
-                    print_score=c.verbose or epoch == c.meta_epochs - 1)
+    # score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
+    #                 print_score=c.verbose or epoch == c.meta_epochs - 1)
 
     if c.grad_map_viz:
+        print("saving gradient maps...")
         export_gradient_maps(model, test_loader, optimizer, -1)
 
 def load_testloader(data_dir_test):

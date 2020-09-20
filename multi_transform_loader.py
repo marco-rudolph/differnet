@@ -46,11 +46,14 @@ class DatasetFolderMultiTransform(DatasetFolder):
             samples = list()
             for i in range(self.n_transforms):
                 if self.get_fixed:
+                    print(f"i={i}: calling fixed_rotation({sample}, {self.fixed_degrees[i]}))")
                     samples.append(fixed_rotation(self, sample, self.fixed_degrees[i]))
                 else:
+                    print(f"i={i}: calling transform({sample})")
                     samples.append(self.transform(sample))
             samples = torch.stack(samples, dim=0)
         if self.target_transform is not None:
+            print(f"calling target_transform({target})")
             target = self.target_transform(target)
         return samples, target
 
