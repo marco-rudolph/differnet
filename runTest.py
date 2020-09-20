@@ -52,9 +52,9 @@ def test(model, test_loader):
     # score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
     #                 print_score=c.verbose or epoch == c.meta_epochs - 1)
 
-    if c.grad_map_viz:
-        print("saving gradient maps...")
-        export_gradient_maps(model, test_loader, optimizer, -1)
+    # if c.grad_map_viz:
+    #     print("saving gradient maps...")
+    #     export_gradient_maps(model, test_loader, optimizer, -1)
 
 def load_testloader(data_dir_test):
     def target_transform(target):
