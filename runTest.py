@@ -15,6 +15,7 @@ from tqdm import tqdm
 import time
 from utils import *
 from localization import export_gradient_maps
+from torch.autograd import Variable
 
 def test(model, test_loader):
     print("Running test")
@@ -23,21 +24,25 @@ def test(model, test_loader):
     # evaluate
     model.to(c.device)
     model.eval()
+    # print(f"model={model}")
     epoch = 0
     if c.verbose:
         print('\nCompute loss and scores on test set:')
     test_loss = list()
     test_z = list()
     test_labels = list()
-    with torch.no_grad():
-        for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):          
-            inputs, labels = preprocess_batch(data)
-            print(f"i={i}: labels={labels}, size of inputs={inputs.size()}")
-            z = model(inputs)
-            loss = get_loss(z, model.nf.jacobian(run_forward=False))
-            test_z.append(z)
-            test_loss.append(t2np(loss))
-            test_labels.append(t2np(labels))
+    #with torch.no_grad():
+    for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):          
+        inputs, labels = preprocess_batch(data)
+        #inputs = Variable(inputs, requires_grad=True)
+        print(f"i={i}: labels={labels}, size of inputs={inputs.size()}")
+        # print(f"inputs={inputs}")
+        z = model(inputs)
+        # print(f"z={z}")
+        loss = get_loss(z, model.nf.jacobian(run_forward=False))
+        test_z.append(z)
+        test_loss.append(t2np(loss))
+        test_labels.append(t2np(labels))
 
     test_loss = np.mean(np.array(test_loss))
     if c.verbose:
@@ -52,9 +57,9 @@ def test(model, test_loader):
     # score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
     #                 print_score=c.verbose or epoch == c.meta_epochs - 1)
 
-    # if c.grad_map_viz:
-    #     print("saving gradient maps...")
-    #     export_gradient_maps(model, test_loader, optimizer, -1)
+    if c.grad_map_viz:
+        print("saving gradient maps...")
+        export_gradient_maps(model, test_loader, optimizer, -1)
 
 def load_testloader(data_dir_test):
     def target_transform(target):
@@ -75,8 +80,8 @@ def load_testloader(data_dir_test):
             class_idx += 1
 
     augmentative_transforms = []
-    if c.transf_rotations:
-        augmentative_transforms += [transforms.RandomRotation(180)]
+    # if c.transf_rotations:
+    #     augmentative_transforms += [transforms.RandomRotation(180)]
     if c.transf_brightness > 0.0 or c.transf_contrast > 0.0 or c.transf_saturation > 0.0:
         augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
                                                            saturation=c.transf_saturation)]
@@ -95,7 +100,7 @@ def load_testloader(data_dir_test):
 # train_set, test_set = load_datasets(c.dataset_path, c.class_name)
 # _, test_loader = make_dataloaders(train_set, test_set)
 
-test_loader = load_testloader("zerobox_dataset/zerobox_class/test")
+test_loader = load_testloader("group15B.avi/")
 # model = torch.load("../zerobox-v2/zerobox_differnet_model.pt", map_location=torch.device('cpu'))
 model = torch.load("models/zerobox_test.pt", map_location=torch.device('cpu'))
 
