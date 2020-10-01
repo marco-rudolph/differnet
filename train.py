@@ -62,36 +62,37 @@ def train(train_loader, test_loader):
             if c.verbose:
                 print('Epoch: {:d}.{:d} \t train loss: {:.4f}'.format(epoch, sub_epoch, mean_train_loss))
 
-        # evaluate
-        model.eval()
-        if c.verbose:
-            print('\nCompute loss and scores on test set:')
-        test_loss = list()
-        test_z = list()
-        test_labels = list()
-        with torch.no_grad():
-            for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):
-                inputs, labels = preprocess_batch(data)
-                z = model(inputs)
-                loss = get_loss(z, model.nf.jacobian(run_forward=False))
-                test_z.append(z)
-                test_loss.append(t2np(loss))
-                test_labels.append(t2np(labels))
+        if not (test_loader is None):
+            # evaluate
+            model.eval()
+            if c.verbose:
+                print('\nCompute loss and scores on test set:')
+            test_loss = list()
+            test_z = list()
+            test_labels = list()
+            with torch.no_grad():
+                for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):
+                    inputs, labels = preprocess_batch(data)
+                    z = model(inputs)
+                    loss = get_loss(z, model.nf.jacobian(run_forward=False))
+                    test_z.append(z)
+                    test_loss.append(t2np(loss))
+                    test_labels.append(t2np(labels))
 
-        test_loss = np.mean(np.array(test_loss))
-        if c.verbose:
-            print('Epoch: {:d} \t test_loss: {:.4f}'.format(epoch, test_loss))
+            test_loss = np.mean(np.array(test_loss))
+            if c.verbose:
+                print('Epoch: {:d} \t test_loss: {:.4f}'.format(epoch, test_loss))
 
-        test_labels = np.concatenate(test_labels)
-        is_anomaly = np.array([0 if l == 0 else 1 for l in test_labels])
+            test_labels = np.concatenate(test_labels)
+            is_anomaly = np.array([0 if l == 0 else 1 for l in test_labels])
 
-        z_grouped = torch.cat(test_z, dim=0).view(-1, c.n_transforms_test, c.n_feat)
-        anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
-        score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
-                         print_score=c.verbose or epoch == c.meta_epochs - 1)
+            z_grouped = torch.cat(test_z, dim=0).view(-1, c.n_transforms_test, c.n_feat)
+            anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
+            score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
+                            print_score=c.verbose or epoch == c.meta_epochs - 1)
 
-    if c.grad_map_viz:
-        export_gradient_maps(model, test_loader, optimizer, -1)
+#    if c.grad_map_viz and not (test_loader is None):
+#        export_gradient_maps(model, test_loader, optimizer, -1)
 
     if c.save_model:
         model.to('cpu')
