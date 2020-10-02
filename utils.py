@@ -100,6 +100,9 @@ def make_dataloaders(trainset, testset):
 def preprocess_batch(data):
     '''move data to device and reshape image'''
     inputs, labels = data
+    print(f"begin: size of inputs={inputs.size()}")
     inputs, labels = inputs.to(c.device), labels.to(c.device)
+    print(f"to: size of inputs={inputs.size()}")
     inputs = inputs.view(-1, *inputs.shape[-3:])
+    print(f"view: size of inputs={inputs.size()}")
     return inputs, labels
