@@ -48,3 +48,5 @@ verbose = True
 grad_map_viz = True
 hide_tqdm_bar = True
 save_model = True
+
+target_tpr = 0.85

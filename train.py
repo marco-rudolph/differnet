@@ -163,8 +163,9 @@ def test(model, model_parameters, test_loader):
 
     # get the threshold for target true positive rate
     for i in range(len(model_parameters['tpr'])):
-        if model_parameters['tpr'][i] > model_parameters['target_tpr']:
-            target_threshold = thresholds[i]
+        if model_parameters['tpr'][i] > c.target_tpr:
+            target_threshold = model_parameters['thresholds'][i]
+            break
 
     is_anomaly_detected = np.array([0 if l < target_threshold else 1 for l in anomaly_score])
 
