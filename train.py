@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_curve
 from tqdm import tqdm
 
 import config as c
@@ -8,6 +9,7 @@ from localization import export_gradient_maps
 from model import DifferNet, save_model, save_weights
 from utils import *
 
+import json
 
 class Score_Observer:
     '''Keeps an eye on the current and highest score so far'''
@@ -31,7 +33,7 @@ class Score_Observer:
                                                                                self.max_epoch))
 
 
-def train(train_loader, test_loader):
+def train(train_loader, validate_loader):
     model = DifferNet()
     optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
     model.to(c.device)
@@ -62,16 +64,16 @@ def train(train_loader, test_loader):
             if c.verbose:
                 print('Epoch: {:d}.{:d} \t train loss: {:.4f}'.format(epoch, sub_epoch, mean_train_loss))
 
-        if not (test_loader is None):
+        if not (validate_loader is None):
             # evaluate
             model.eval()
             if c.verbose:
-                print('\nCompute loss and scores on test set:')
+                print('\nCompute loss and scores on validate set:')
             test_loss = list()
             test_z = list()
             test_labels = list()
             with torch.no_grad():
-                for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):
+                for i, data in enumerate(tqdm(validate_loader, disable=c.hide_tqdm_bar)):
                     inputs, labels = preprocess_batch(data)
                     z = model(inputs)
                     loss = get_loss(z, model.nf.jacobian(run_forward=False))
@@ -80,8 +82,6 @@ def train(train_loader, test_loader):
                     test_labels.append(t2np(labels))
 
             test_loss = np.mean(np.array(test_loss))
-            if c.verbose:
-                print('Epoch: {:d} \t test_loss: {:.4f}'.format(epoch, test_loss))
 
             test_labels = np.concatenate(test_labels)
             is_anomaly = np.array([0 if l == 0 else 1 for l in test_labels])
@@ -91,11 +91,90 @@ def train(train_loader, test_loader):
             score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
                             print_score=c.verbose or epoch == c.meta_epochs - 1)
 
-#    if c.grad_map_viz and not (test_loader is None):
-#        export_gradient_maps(model, test_loader, optimizer, -1)
+            fpr, tpr, thresholds = roc_curve(is_anomaly, anomaly_score)
+            model_parameters = {}
+            model_parameters['fpr'] = fpr.tolist()
+            model_parameters['tpr'] = tpr.tolist()
+            model_parameters['thresholds'] = thresholds.tolist()
+
+            with open('models/' + c.modelname + '.json', 'w') as jsonfile:
+                jsonfile.write(json.dumps(model_parameters))
+
+            if c.verbose:
+                print('Epoch: {:d} \t validate_loss: {:.4f}'.format(epoch, test_loss))
+
+                # compare is_anomaly and anomaly_score
+                np.set_printoptions(precision=2, suppress=True)
+                print('is_anomaly:    ', is_anomaly)
+                print('anomaly_score: ', anomaly_score)
+                print('fpr:           ', fpr)
+                print('tpr:           ', tpr)
+                print('thresholds:    ', thresholds)
+
+#    if c.grad_map_viz and not (validate_loader is None):
+#        export_gradient_maps(model, validate_loader, optimizer, -1)
 
     if c.save_model:
         model.to('cpu')
         save_model(model, c.modelname)
         save_weights(model, c.modelname)
-    return model
+
+    return model, model_parameters
+
+def test(model, model_parameters, test_loader):
+    print("Running test")
+    optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04,
+                                 weight_decay=1e-5)
+    # score_obs = Score_Observer('AUROC')
+    # evaluate
+    model.to(c.device)
+    model.eval()
+    # print(f"model={model}")
+    epoch = 0
+    if c.verbose:
+        print('\nCompute loss and scores on test set:')
+    test_loss = list()
+    test_z = list()
+    test_labels = list()
+    # with torch.no_grad():
+    for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):
+        inputs, labels = preprocess_batch(data)
+        # inputs = Variable(inputs, requires_grad=True)
+        print(f"i={i}: labels={labels}, size of inputs={inputs.size()}")
+        # print(f"inputs={inputs}")
+        z = model(inputs)
+        # print(f"z={z}")
+        loss = get_loss(z, model.nf.jacobian(run_forward=False))
+        test_z.append(z)
+        test_loss.append(t2np(loss))
+        test_labels.append(t2np(labels))
+
+    test_loss = np.mean(np.array(test_loss))
+    if c.verbose:
+        print('Epoch: {:d} \t test_loss: {:.4f}'.format(epoch, test_loss))
+
+    test_labels = np.concatenate(test_labels)
+    is_anomaly = np.array([0 if l == 0 else 1 for l in test_labels])
+
+    z_grouped = torch.cat(test_z, dim=0).view(-1, c.n_transforms_test, c.n_feat)
+    anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
+    # score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
+    #                 print_score=c.verbose or epoch == c.meta_epochs - 1)
+
+    # get the threshold for target true positive rate
+    for i in range(len(model_parameters['tpr'])):
+        if model_parameters['tpr'][i] > model_parameters['target_tpr']:
+            target_threshold = thresholds[i]
+
+    is_anomaly_detected = np.array([0 if l < target_threshold else 1 for l in anomaly_score])
+
+    # calculate test accuracy
+    error_count = 0
+    for i in range(len(is_anomaly)):
+        if is_anomaly[i] != is_anomaly_detected[i]:
+            error_count += 1
+
+    test_accuracy = 1 - float(error_count) / len(is_anomaly)
+
+    print(f"test_labels={test_labels}, is_anomaly={is_anomaly},anomaly_score={anomaly_score},is_anomaly_detected={is_anomaly_detected}")
+    print(f"target_tpr={c.target_tpr}, target_threshold={target_threshold}, test_accuracy={test_accuracy}")

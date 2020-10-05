@@ -17,7 +17,7 @@ def get_loss(z, jac):
     return torch.mean(0.5 * torch.sum(z ** 2, dim=(1,)) - jac) / z.shape[1]
 
 
-def load_datasets(dataset_path, class_name):
+def load_datasets(dataset_path, class_name, test=False):
     '''
     Expected folder/file format to find anomalies of class <class_name> from dataset location <dataset_path>:
 
@@ -55,9 +55,10 @@ def load_datasets(dataset_path, class_name):
         return class_perm[target]
 
     data_dir_train = os.path.join(dataset_path, class_name, 'train')
+    data_dir_validate = os.path.join(dataset_path, class_name, 'validate')
     data_dir_test = os.path.join(dataset_path, class_name, 'test')
 
-    classes = os.listdir(data_dir_test)
+    classes = os.listdir(data_dir_validate)
     if 'good' not in classes:
         print('There should exist a subdirectory "good". Read the doc of this function for further information.')
         exit()
@@ -83,18 +84,34 @@ def load_datasets(dataset_path, class_name):
 
     transform_train = transforms.Compose(tfs)
 
-    trainset = ImageFolderMultiTransform(data_dir_train, transform=transform_train, n_transforms=c.n_transforms)
-    testset = ImageFolderMultiTransform(data_dir_test, transform=transform_train, target_transform=target_transform,
+    trainset = None
+    validateset = None
+    testset = None
+    if test == False:
+        trainset = ImageFolderMultiTransform(data_dir_train, transform=transform_train, n_transforms=c.n_transforms)
+        validateset = ImageFolderMultiTransform(data_dir_validate, transform=transform_train, target_transform=target_transform,
                                         n_transforms=c.n_transforms_test)
-    return trainset, testset
+    else:
+        testset = ImageFolderMultiTransform(data_dir_test, transform=transform_train, target_transform=target_transform,
+                                        n_transforms=c.n_transforms_test)
+
+    return trainset, validateset, testset
 
 
-def make_dataloaders(trainset, testset):
-    trainloader = torch.utils.data.DataLoader(trainset, pin_memory=True, batch_size=c.batch_size, shuffle=True,
-                                              drop_last=False)
-    testloader = torch.utils.data.DataLoader(testset, pin_memory=True, batch_size=c.batch_size_test, shuffle=True,
-                                             drop_last=False)
-    return trainloader, testloader
+def make_dataloaders(trainset, validateset, testset, test=False):
+    trainloader = None
+    validateloader = None
+    testloader = None
+    if test == False:
+        trainloader = torch.utils.data.DataLoader(trainset, pin_memory=True, batch_size=c.batch_size, shuffle=True,
+                                                  drop_last=False)
+        validateloader = torch.utils.data.DataLoader(validateset, pin_memory=True, batch_size=c.batch_size, shuffle=True,
+                                                  drop_last=False)
+    else:
+        testloader = torch.utils.data.DataLoader(testset, pin_memory=True, batch_size=c.batch_size_test, shuffle=True,
+                                                 drop_last=False)
+
+    return trainloader, validateloader, testloader
 
 
 def preprocess_batch(data):
