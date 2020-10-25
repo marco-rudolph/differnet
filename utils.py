@@ -6,6 +6,17 @@ from torchvision import datasets, transforms
 import config as c
 from multi_transform_loader import ImageFolderMultiTransform
 
+import random
+
+def random_shrink():
+    w, h = c.img_size
+    w_shrink = w + int(random.uniform(-0.5, 0.17) * w)
+    h_shrink = h + int(random.uniform(-0.5, 0.17) * h)
+    img_size = (w_shrink, h_shrink)
+    if w_shrink < h_shrink:
+        img_size = (h_shrink, w_shrink)
+    print('shrinked image size: ', img_size)
+    return img_size
 
 def t2np(tensor):
     '''pytorch tensor -> numpy array'''
@@ -79,8 +90,8 @@ def load_datasets(dataset_path, class_name, test=False):
         augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
                                                            saturation=c.transf_saturation)]
 
-    tfs = [transforms.Resize(c.img_size)] + augmentative_transforms + [transforms.ToTensor(),
-                                                                       transforms.Normalize(c.norm_mean, c.norm_std)]
+    tfs = [transforms.Resize(random_shrink())] + augmentative_transforms + [transforms.ToTensor(),
+                                                                                  transforms.Normalize(c.norm_mean, c.norm_std)]
 
     transform_train = transforms.Compose(tfs)
 
