@@ -117,9 +117,34 @@ def make_dataloaders(trainset, validateset, testset, test=False):
 def preprocess_batch(data):
     '''move data to device and reshape image'''
     inputs, labels = data
+    inputs = differences_as_input(inputs)
+
     print(f"begin: size of inputs={inputs.size()}")
     inputs, labels = inputs.to(c.device), labels.to(c.device)
     print(f"to: size of inputs={inputs.size()}")
     inputs = inputs.view(-1, *inputs.shape[-3:])
     print(f"view: size of inputs={inputs.size()}")
     return inputs, labels
+
+def differences_as_input(inputs):
+    # instead of using the input images, we calculate the differences between each set of 2 images
+    # then we feed the differences as our input to the model
+    num_batch = inputs.shape[0]
+    for i in range(num_batch):
+        diff_list = []
+        num_transformed_images = inputs.shape[1]
+        for j in range(num_transformed_images):
+            if j % 2 == 0:
+                # calculate the differences between each set of 2 images
+                # append the differences into a new list
+                diff_list.append(inputs[i][j+1]-inputs[0][j])
+
+        diff_list = torch.stack(diff_list, 0)
+        diff_list = diff_list.unsqueeze(1).permute(1, 0, 2, 3, 4)
+
+        # cat the differences between images from each batch into the entire batch group
+        if i == 0:
+            diff_inputs = diff_list
+        else:
+            diff_inputs = torch.cat((diff_inputs, diff_list), 0)
+    return diff_inputs
