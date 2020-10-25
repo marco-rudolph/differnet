@@ -127,8 +127,10 @@ def preprocess_batch(data):
     return inputs, labels
 
 def differences_as_input(inputs):
-    # instead of using the input images, we calculate the differences between each set of 2 images
+    '''
+    instead of using the input images, we calculate the differences between each set of 2 images
     # then we feed the differences as our input to the model
+    '''
     num_batch = inputs.shape[0]
     for i in range(num_batch):
         diff_list = []
@@ -147,4 +149,4 @@ def differences_as_input(inputs):
             diff_inputs = diff_list
         else:
             diff_inputs = torch.cat((diff_inputs, diff_list), 0)
-    return diff_inputs
+    return torch.cat((diff_inputs, diff_inputs), 1)
