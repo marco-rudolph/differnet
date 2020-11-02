@@ -7,16 +7,37 @@ import config as c
 from multi_transform_loader import ImageFolderMultiTransform
 
 import random
+import cv2
+import numpy as np
 
-def random_shrink():
-    w, h = c.img_size
-    w_shrink = w + int(random.uniform(-0.5, 0.17) * w)
-    h_shrink = h + int(random.uniform(-0.5, 0.17) * h)
-    img_size = (w_shrink, h_shrink)
+def TransformShow(name="img", wait=100):
+    def transform_show(img):
+        cv2.imshow(name, np.array(img))
+        cv2.waitKey(wait)
+        return img
+
+    return transform_show
+
+def randomCrop():
+    def random_crop(img):
+        new_size = random_shrink(img.size)
+        rs = transforms.RandomCrop(new_size, padding=None, pad_if_needed=True, fill=0, padding_mode='edge')
+        return rs(img)
+
+    return random_crop
+
+def random_shrink(img_size):
+    w, h = img_size
+    shrinkW = random.randint(0,1)
+    shrinkH = 1-shrinkW
+    shrink_scale = random.uniform(0.04, 0.1)
+    w_shrink = w - int(shrinkW * shrink_scale * w)
+    h_shrink = h - int(shrinkH * shrink_scale * h)
+    new_img_size = (w_shrink, h_shrink)
     if w_shrink < h_shrink:
-        img_size = (h_shrink, w_shrink)
-    print('shrinked image size: ', img_size)
-    return img_size
+        new_img_size = (h_shrink, w_shrink)
+    print('shrinked image size: ', new_img_size, img_size)
+    return new_img_size
 
 def t2np(tensor):
     '''pytorch tensor -> numpy array'''
@@ -90,8 +111,8 @@ def load_datasets(dataset_path, class_name, test=False):
         augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
                                                            saturation=c.transf_saturation)]
 
-    tfs = [transforms.Resize(random_shrink())] + augmentative_transforms + [transforms.ToTensor(),
-                                                                                  transforms.Normalize(c.norm_mean, c.norm_std)]
+    tfs = [randomCrop(), transforms.Resize(c.img_size)] \
+          + augmentative_transforms + [ TransformShow("", 200), transforms.ToTensor(), transforms.Normalize(c.norm_mean, c.norm_std)]
 
     transform_train = transforms.Compose(tfs)
 
