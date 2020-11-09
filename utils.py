@@ -9,6 +9,7 @@ from multi_transform_loader import ImageFolderMultiTransform
 import random
 import cv2
 import numpy as np
+from datetime import datetime
 
 def TransformShow(name="img", wait=100):
     def transform_show(img):
@@ -20,24 +21,30 @@ def TransformShow(name="img", wait=100):
 
 def randomCrop():
     def random_crop(img):
-        new_size = random_shrink(img.size)
-        rs = transforms.RandomCrop(new_size, padding=None, pad_if_needed=True, fill=0, padding_mode='edge')
-        return rs(img)
+        x,y,w,h = random_shrink2(img.size)
+        rs = transforms.functional.crop(img,y,x,h,w)
+        # path = r'C:\Users\fiona\Desktop\differnet\transform\\'
+        # now = datetime.now()
+        # dt_string = now.strftime("%d%m%Y%H%M%S")
+        # cv2.imwrite(path + 'transform_' + dt_string + '.jpg', np.array(rs))
+        return rs
 
     return random_crop
 
-def random_shrink(img_size):
-    w, h = img_size
-    shrinkW = random.randint(0,1)
-    shrinkH = 1-shrinkW
-    shrink_scale = random.uniform(0.04, 0.1)
-    w_shrink = w - int(shrinkW * shrink_scale * w)
-    h_shrink = h - int(shrinkH * shrink_scale * h)
-    new_img_size = (w_shrink, h_shrink)
-    if w_shrink < h_shrink:
-        new_img_size = (h_shrink, w_shrink)
-    print('shrinked image size: ', new_img_size, img_size)
-    return new_img_size
+def random_shrink2(img_size):
+    width, height = img_size
+    center_x = int(width / 2)
+    center_y = int(height / 2)
+    shrink_scaleW = random.uniform(0.05, 0.15)
+    shrink_scaleH = random.uniform(0.1, 0.2)
+    new_width = int(width * (1 - shrink_scaleW))
+    new_height = int(height * (1 - shrink_scaleH))
+    new_ul_x = int(center_x - new_width / 2)
+    new_ul_y = int(center_y - new_height / 2)
+    print(
+        f"shrinking ({0, 0, width, height}) to ({new_ul_x, new_ul_y, new_width, new_height}) by {shrink_scaleW, shrink_scaleH}"
+    )
+    return new_ul_x, new_ul_y, new_width, new_height
 
 def t2np(tensor):
     '''pytorch tensor -> numpy array'''
