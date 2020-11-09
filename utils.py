@@ -117,7 +117,7 @@ def make_dataloaders(trainset, validateset, testset, test=False):
 def preprocess_batch(data):
     '''move data to device and reshape image'''
     inputs, labels = data
-    inputs = differences_as_input(inputs)
+    #inputs = differences_as_input(inputs)
 
     print(f"begin: size of inputs={inputs.size()}")
     inputs, labels = inputs.to(c.device), labels.to(c.device)
