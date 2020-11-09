@@ -7,6 +7,7 @@ boxes = annotation.getElementsByTagName('box')
 boxesList = []
 frameList = []
 
+# Store the bounding box info along with frame number info into list
 for i in range(boxes.length):
     frame = int(boxes[i].attributes['frame'].value)
     frameList.append(frame)
@@ -18,13 +19,11 @@ for i in range(boxes.length):
 
     boxesList.append([ytl, ybr, xtl, xbr])
 
-
-# one specific item attribute
-print('Box #1 frame:')
-print(boxes[0].attributes['frame'].value)
-
 # Opens the Video file
 cap = cv2.VideoCapture('dataset/data-generation/FileOutput0_2019-07-06_17-11-17-01-01 black jar short.avi')
+
+
+# Set up shrink percentage
 shrink_percentage = 0.02
 j = 0
 while(cap.isOpened()):
@@ -35,6 +34,7 @@ while(cap.isOpened()):
         xtl = boxesList[frameList.index(j)][2]
         xbr = boxesList[frameList.index(j)][3]
 
+        # Crop the frames with the bounding box position info
         crop_frame = frame[int(ytl*(1+shrink_percentage)):int(ybr*(1-shrink_percentage)),
                      int(xtl*(1+shrink_percentage)):int(xbr*(1-shrink_percentage))]
         print('frame', j)
