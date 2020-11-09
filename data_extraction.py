@@ -1,48 +1,60 @@
 import cv2
 from xml.dom import minidom
 
-# Read annotations
-annotation = minidom.parse('dataset/data-generation/annotations.xml')
-boxes = annotation.getElementsByTagName('box')
-boxesList = []
-frameList = []
+# Load videos one by one
+for i in range(4):
+    print('Data generation on video-' + str(i+1))
 
-# Store the bounding box info along with frame number info into list
-for i in range(boxes.length):
-    frame = int(boxes[i].attributes['frame'].value)
-    frameList.append(frame)
+    filename = str(i+1)
+    # Opens the Video file
+    cap = cv2.VideoCapture('dataset/data-generation/' + filename + '.avi')
 
-    ytl = int(float(boxes[i].attributes['ytl'].value))
-    ybr = int(float(boxes[i].attributes['ybr'].value))
-    xtl = int(float(boxes[i].attributes['xtl'].value))
-    xbr = int(float(boxes[i].attributes['xbr'].value))
+    # Read annotations
+    annotation = minidom.parse('dataset/data-generation/' + filename + '.xml')
+    boxes = annotation.getElementsByTagName('box')
 
-    boxesList.append([ytl, ybr, xtl, xbr])
+    frameList = []
+    labelList = []
+    boxesList = []
 
-# Opens the Video file
-cap = cv2.VideoCapture('dataset/data-generation/FileOutput0_2019-07-06_17-11-17-01-01 black jar short.avi')
+    # Store the bounding box info along with frame number info into list
+    for i in range(boxes.length):
+        if (boxes[i].attributes['outside'].value != '1'):
+            frame = int(boxes[i].attributes['frame'].value)
+            frameList.append(frame)
 
+            labelList.append(boxes[i].parentNode.attributes['label'].value)
 
-# Set up shrink percentage
-shrink_percentage = 0.02
-j = 0
-while(cap.isOpened()):
-    ret, frame = cap.read()
-    if(frame is not None and j in frameList):
-        ytl = boxesList[frameList.index(j)][0]
-        ybr = boxesList[frameList.index(j)][1]
-        xtl = boxesList[frameList.index(j)][2]
-        xbr = boxesList[frameList.index(j)][3]
+            ytl = int(float(boxes[i].attributes['ytl'].value))
+            ybr = int(float(boxes[i].attributes['ybr'].value))
+            xtl = int(float(boxes[i].attributes['xtl'].value))
+            xbr = int(float(boxes[i].attributes['xbr'].value))
+            boxesList.append([ytl, ybr, xtl, xbr])
 
-        # Crop the frames with the bounding box position info
-        crop_frame = frame[int(ytl*(1+shrink_percentage)):int(ybr*(1-shrink_percentage)),
-                     int(xtl*(1+shrink_percentage)):int(xbr*(1-shrink_percentage))]
-        print('frame', j)
-        cv2.imwrite('dataset/data-generation/frame' + str(j) + '.jpg', crop_frame)
+    # Set up shrink percentage
+    shrink_percentage = 0.02
+    j = 0
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        if(frame is not None and j in frameList):
+            ytl = boxesList[frameList.index(j)][0]
+            ybr = boxesList[frameList.index(j)][1]
+            xtl = boxesList[frameList.index(j)][2]
+            xbr = boxesList[frameList.index(j)][3]
+            label = 'good' if labelList[frameList.index(j)] == 'bottle' else 'defect'
+            # Crop the frames with the bounding box position info
+            crop_frame = frame[int(ytl*(1+shrink_percentage)):int(ybr*(1-shrink_percentage)),
+                         int(xtl*(1+shrink_percentage)):int(xbr*(1-shrink_percentage))]
 
-    if ret == False:
-        break
-    j += 1
+            # output file formatting example "video1-frame4-defect.jpg"
+            print('Successfully generated: dataset/data-generation/' + label + '/video-' + filename + '-frame' + str(j) +
+                  '-' + label + '.jpg')
+            cv2.imwrite('dataset/data-generation/' + label + '/video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
+                        crop_frame)
 
-cap.release()
-cv2.destroyAllWindows()
+        if ret == False:
+            break
+        j += 1
+
+    cap.release()
+    cv2.destroyAllWindows()
