@@ -2,15 +2,15 @@ import cv2
 from xml.dom import minidom
 
 # Load videos one by one
-for i in range(4):
+for i in range(8):
     print('Data generation on video-' + str(i+1))
-
     filename = str(i+1)
+
     # Opens the Video file
-    cap = cv2.VideoCapture('dataset/data-generation/' + filename + '.avi')
+    cap = cv2.VideoCapture('dataset/data-generation/videos/' + filename + '.avi')
 
     # Read annotations
-    annotation = minidom.parse('dataset/data-generation/' + filename + '.xml')
+    annotation = minidom.parse('dataset/data-generation/annotations/' + filename + '.xml')
     boxes = annotation.getElementsByTagName('box')
 
     frameList = []
@@ -19,6 +19,8 @@ for i in range(4):
 
     # Store the bounding box info along with frame number info into list
     for i in range(boxes.length):
+
+        # make sure not select the bounding box that outside the frame
         if (boxes[i].attributes['outside'].value != '1'):
             frame = int(boxes[i].attributes['frame'].value)
             frameList.append(frame)
@@ -47,9 +49,9 @@ for i in range(4):
                          int(xtl*(1+shrink_percentage)):int(xbr*(1-shrink_percentage))]
 
             # output file formatting example "video1-frame4-defect.jpg"
-            print('Successfully generated: dataset/data-generation/' + label + '/video-' + filename + '-frame' + str(j) +
+            print('Successfully generated: dataset/zerobox-2010-1/' + label + '/video-' + filename + '-frame' + str(j) +
                   '-' + label + '.jpg')
-            cv2.imwrite('dataset/data-generation/' + label + '/video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
+            cv2.imwrite('dataset/zerobox-2010-1/' + label + '/video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
                         crop_frame)
 
         if ret == False:
