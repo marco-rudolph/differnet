@@ -20,32 +20,24 @@ def get_loss(z, jac):
 def load_datasets(dataset_path, class_name, test=False):
     '''
     Expected folder/file format to find anomalies of class <class_name> from dataset location <dataset_path>:
-
     train data:
-
             dataset_path/class_name/train/good/any_filename.png
             dataset_path/class_name/train/good/another_filename.tif
             dataset_path/class_name/train/good/xyz.png
             [...]
-
     test data:
-
         'normal data' = non-anomalies
-
             dataset_path/class_name/test/good/name_the_file_as_you_like_as_long_as_there_is_an_image_extension.webp
             dataset_path/class_name/test/good/did_you_know_the_image_extension_webp?.png
             dataset_path/class_name/test/good/did_you_know_that_filenames_may_contain_question_marks????.png
             dataset_path/class_name/test/good/dont_know_how_it_is_with_windows.png
             dataset_path/class_name/test/good/just_dont_use_windows_for_this.png
             [...]
-
         anomalies - assume there are anomaly classes 'crack' and 'curved'
-
             dataset_path/class_name/test/crack/dat_crack_damn.png
             dataset_path/class_name/test/crack/let_it_crack.png
             dataset_path/class_name/test/crack/writing_docs_is_fun.png
             [...]
-
             dataset_path/class_name/test/curved/wont_make_a_difference_if_you_put_all_anomalies_in_one_class.png
             dataset_path/class_name/test/curved/but_this_code_is_practicable_for_the_mvtec_dataset.png
             [...]
@@ -117,36 +109,9 @@ def make_dataloaders(trainset, validateset, testset, test=False):
 def preprocess_batch(data):
     '''move data to device and reshape image'''
     inputs, labels = data
-    #inputs = differences_as_input(inputs)
-
     print(f"begin: size of inputs={inputs.size()}")
     inputs, labels = inputs.to(c.device), labels.to(c.device)
     print(f"to: size of inputs={inputs.size()}")
     inputs = inputs.view(-1, *inputs.shape[-3:])
     print(f"view: size of inputs={inputs.size()}")
     return inputs, labels
-
-def differences_as_input(inputs):
-    '''
-    instead of using the input images, we calculate the differences between each set of 2 images
-    # then we feed the differences as our input to the model
-    '''
-    num_batch = inputs.shape[0]
-    for i in range(num_batch):
-        diff_list = []
-        num_transformed_images = inputs.shape[1]
-        for j in range(num_transformed_images):
-            if j % 2 == 0:
-                # calculate the differences between each set of 2 images
-                # append the differences into a new list
-                diff_list.append(inputs[i][j+1]-inputs[0][j])
-
-        diff_list = torch.stack(diff_list, 0)
-        diff_list = diff_list.unsqueeze(1).permute(1, 0, 2, 3, 4)
-
-        # cat the differences between images from each batch into the entire batch group
-        if i == 0:
-            diff_inputs = diff_list
-        else:
-            diff_inputs = torch.cat((diff_inputs, diff_list), 0)
-    return torch.cat((diff_inputs, diff_inputs), 1)

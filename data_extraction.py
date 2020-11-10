@@ -2,7 +2,7 @@ import cv2
 from xml.dom import minidom
 
 # Load videos one by one
-for i in range(8):
+for i in range(21):
     print('Data generation on video-' + str(i+1))
     filename = str(i+1)
 
