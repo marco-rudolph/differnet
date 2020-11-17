@@ -44,6 +44,7 @@ for i in range(21):
             xtl = boxesList[frameList.index(j)][2]
             xbr = boxesList[frameList.index(j)][3]
             label = 'good' if labelList[frameList.index(j)] == 'bottle' else 'defect'
+
             # Crop the frames with the bounding box position info
             crop_frame = frame[int(ytl*(1+shrink_percentage)):int(ybr*(1-shrink_percentage)),
                          int(xtl*(1+shrink_percentage)):int(xbr*(1-shrink_percentage))]
@@ -51,6 +52,8 @@ for i in range(21):
             # output file formatting example "video1-frame4-defect.jpg"
             print('Successfully generated: dataset/zerobox-2010-1/' + label + '/video-' + filename + '-frame' + str(j) +
                   '-' + label + '.jpg')
+            cv2.imwrite('dataset/zerobox-2010-1-original/' + label + '/original-video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
+                        frame)
             cv2.imwrite('dataset/zerobox-2010-1/' + label + '/video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
                         crop_frame)
 
