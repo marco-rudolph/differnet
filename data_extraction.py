@@ -1,8 +1,9 @@
 import cv2
 from xml.dom import minidom
+import config as c
 
 # Load videos one by one
-for i in range(21):
+for i in range(c.num_videos):
     print('Data generation on video-' + str(i+1))
     filename = str(i+1)
 
@@ -50,11 +51,11 @@ for i in range(21):
                          int(xtl*(1+shrink_percentage)):int(xbr*(1-shrink_percentage))]
 
             # output file formatting example "video1-frame4-defect.jpg"
-            print('Successfully generated: dataset/zerobox-2010-1/' + label + '/video-' + filename + '-frame' + str(j) +
+            print('Successfully generated: ' +c.save_cropped_image_to + label + '/video-' + filename + '-frame' + str(j) +
                   '-' + label + '.jpg')
-            cv2.imwrite('dataset/zerobox-2010-1-original/' + label + '/original-video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
+            cv2.imwrite(c.save_original_image_to + label + '/original-video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
                         frame)
-            cv2.imwrite('dataset/zerobox-2010-1/' + label + '/video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
+            cv2.imwrite(c.save_cropped_image_to + label + '/video-' + filename + '-frame' + str(j) + '-' + label + '.jpg',
                         crop_frame)
 
         if ret == False:

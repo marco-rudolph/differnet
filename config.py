@@ -1,6 +1,11 @@
 '''This file configures the training procedure because handling arguments in every single function is so exhaustive for
 research purposes. Don't try this code if you are a software engineer.'''
 
+# data extraction settings
+num_videos = 21
+save_cropped_image_to = "dataset/zerobox-2010-1/"
+save_original_image_to = "dataset/zerobox-2010-1-original/"
+
 # device settings
 device = 'cpu' # 'cuda' or 'cpu'
 import torch
