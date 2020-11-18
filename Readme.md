@@ -48,10 +48,15 @@ $ python main.py
 How to use Data extraction tool to extract data from video clips:
  1. Create folder structure like the example shows in the picture below.
  
+  ![1](https://github.com/zerobox-ai/differnet/blob/zijian/dataset/data-generation/annotations/structure1.png)
+  
  2. Dump the videos and annotations (rename them use 1.xml, 1.avi as one pair annotation and video) into the folders under data-generation folder.
  
+  ![2](https://github.com/zerobox-ai/differnet/blob/zijian/dataset/data-generation/annotations/structure2.png)
+  
  3. Modify the annotation files: Since the annotation uses label "defect" to indicate the defect area, while, both good and defective bottles are labeled as "bottle" which is confusing. To indicate which "bottle" is defective, we need to find the frames that labeled with defect, and then manully update the group's label from "bottle" to "defective" for the groups that falling in to those frames. 
- 
+  ![3](https://github.com/zerobox-ai/differnet/blob/zijian/dataset/data-generation/annotations/structure3.png)
+  
  - For example: in the example image above, the frame 15 and 16 are labeled as "defect" which indicates those 2 frames has defect areas on the bottles. So we need to find the group that contains frame 15 and 16, and then manully update the label from "bottle" to "defective". and then delete the whole \<track\> group that labeled as "defect" (since we don't care about the defect area in data extraction).
  
  4. Modify the config.py, fill in appropriate value for num_videos, save_cropped_image_to and save_original_image_to
