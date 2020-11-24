@@ -35,14 +35,17 @@ def random_shrink2(img_size):
     width, height = img_size
     center_x = int(width / 2)
     center_y = int(height / 2)
-    shrink_scaleW = random.uniform(0.05, 0.15)
-    shrink_scaleH = random.uniform(0.1, 0.2)
-    new_width = int(width * (1 - shrink_scaleW))
-    new_height = int(height * (1 - shrink_scaleH))
+    shrink_scaleT = 0.2
+    shrink_scale = 0.05
+    top_reduction = shrink_scaleT * height
+    bot_reduction = shrink_scale * height
+    lr_reduction = shrink_scale * width
+    new_height = int(height - top_reduction - bot_reduction)
+    new_width = int(width - 2*lr_reduction)
     new_ul_x = int(center_x - new_width / 2)
     new_ul_y = int(center_y - new_height / 2)
     print(
-        f"shrinking ({0, 0, width, height}) to ({new_ul_x, new_ul_y, new_width, new_height}) by {shrink_scaleW, shrink_scaleH}"
+        f"shrinking ({0, 0, width, height}) to ({new_ul_x, new_ul_y, new_width, new_height})"
     )
     return new_ul_x, new_ul_y, new_width, new_height
 
@@ -119,7 +122,7 @@ def load_datasets(dataset_path, class_name, test=False):
                                                            saturation=c.transf_saturation)]
 
     tfs = [randomCrop(), transforms.Resize(c.img_size)] \
-          + augmentative_transforms + [ TransformShow("", 200), transforms.ToTensor(), transforms.Normalize(c.norm_mean, c.norm_std)]
+          + augmentative_transforms + [ TransformShow("", 100), transforms.ToTensor(), transforms.Normalize(c.norm_mean, c.norm_std)]
 
     transform_train = transforms.Compose(tfs)
 
