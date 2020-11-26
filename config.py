@@ -2,14 +2,14 @@
 research purposes. Don't try this code if you are a software engineer.'''
 
 # device settings
-device = 'cpu' # 'cuda' or 'cpu'
+device = 'cuda' # 'cuda' or 'cpu'
 import torch
 torch.cuda.set_device(0)
 
 # data settings
 dataset_path = "dataset"
-class_name = "zerobox-2009-5"
-modelname = "zerobox-2009-5"
+class_name = "zerobox-2010-2-zijian"
+modelname = "zerobox-2010-2-zijian"
 
 img_size = (448, 448)
 img_dims = [3] + list(img_size)

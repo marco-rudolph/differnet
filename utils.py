@@ -23,10 +23,10 @@ def randomCrop():
     def random_crop(img):
         x,y,w,h = random_shrink2(img.size)
         rs = transforms.functional.crop(img,y,x,h,w)
-        # path = r'C:\Users\fiona\Desktop\differnet\transform\\'
-        # now = datetime.now()
-        # dt_string = now.strftime("%d%m%Y%H%M%S")
-        # cv2.imwrite(path + 'transform_' + dt_string + '.jpg', np.array(rs))
+        path = 'cropped/'
+        now = datetime.now()
+        dt_string = now.strftime("%d%m%Y%H%M%S")
+        cv2.imwrite(path + 'transform_' + dt_string + '.jpg', np.array(rs))
         return rs
 
     return random_crop
@@ -43,7 +43,7 @@ def random_shrink2(img_size):
     new_height = int(height - top_reduction - bot_reduction)
     new_width = int(width - 2*lr_reduction)
     new_ul_x = int(center_x - new_width / 2)
-    new_ul_y = int(center_y - new_height / 2)
+    new_ul_y = int(bot_reduction)
     print(
         f"shrinking ({0, 0, width, height}) to ({new_ul_x, new_ul_y, new_width, new_height})"
     )
@@ -116,7 +116,7 @@ def load_datasets(dataset_path, class_name, test=False):
 
     augmentative_transforms = []
     if c.transf_rotations:
-        augmentative_transforms += [transforms.RandomRotation(180)]
+        augmentative_transforms += [transforms.RandomRotation(5)]
     if c.transf_brightness > 0.0 or c.transf_contrast > 0.0 or c.transf_saturation > 0.0:
         augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
                                                            saturation=c.transf_saturation)]
