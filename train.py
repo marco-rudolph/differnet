@@ -9,6 +9,9 @@ from localization import export_gradient_maps
 from model import DifferNet, save_model, save_parameters, save_weights
 from utils import *
 
+from datetime import datetime
+import matplotlib.pyplot as plt
+import json
 
 class Score_Observer:
     '''Keeps an eye on the current and highest score so far'''
@@ -102,6 +105,24 @@ def train(train_loader, validate_loader):
             model_parameters['AUROC'] = AUROC
 
             save_parameters(model_parameters, save_name_pre + '_epoch-' + str(epoch))
+            plt.figure()
+            lw = 2
+            plt.figure(figsize=(10, 10))
+            plt.plot(fpr.tolist(), tpr.tolist(), color='darkorange',
+                     lw=lw, label='ROC curve')
+            plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.0])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('ROC Curve')
+            plt.legend(loc="lower right")
+            now = datetime.now()
+            dt_string = now.strftime("%d%m%Y%H%M%S")
+            plt.savefig('ROC_' + dt_string + '.jpg')
+
+            with open('models/' + c.modelname + '.json', 'w') as jsonfile:
+                jsonfile.write(json.dumps(model_parameters))
 
             if c.verbose:
                 print('Epoch: {:d} \t validate_loss: {:.4f}'.format(epoch, test_loss))
@@ -114,8 +135,8 @@ def train(train_loader, validate_loader):
                 print('tpr:           ', tpr)
                 print('thresholds:    ', thresholds)
 
-#    if c.grad_map_viz and not (validate_loader is None):
-#        export_gradient_maps(model, validate_loader, optimizer, -1)
+    if c.grad_map_viz and not (validate_loader is None):
+        export_gradient_maps(model, validate_loader, optimizer, 1)
 
     if c.save_model:
         model.to('cpu')
