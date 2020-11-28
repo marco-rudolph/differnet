@@ -74,7 +74,7 @@ def load_datasets(dataset_path, class_name, test=False):
 
     augmentative_transforms = []
     if c.transf_rotations:
-        augmentative_transforms += [transforms.RandomRotation(180)]
+        augmentative_transforms += [transforms.RandomRotation(c.rotation_degree)]
     if c.transf_brightness > 0.0 or c.transf_contrast > 0.0 or c.transf_saturation > 0.0:
         augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
                                                            saturation=c.transf_saturation)]
@@ -117,9 +117,9 @@ def make_dataloaders(trainset, validateset, testset, test=False):
 def preprocess_batch(data):
     '''move data to device and reshape image'''
     inputs, labels = data
-    print(f"begin: size of inputs={inputs.size()}")
+    #print(f"begin: size of inputs={inputs.size()}")
     inputs, labels = inputs.to(c.device), labels.to(c.device)
-    print(f"to: size of inputs={inputs.size()}")
+    #print(f"to: size of inputs={inputs.size()}")
     inputs = inputs.view(-1, *inputs.shape[-3:])
-    print(f"view: size of inputs={inputs.size()}")
+    #print(f"view: size of inputs={inputs.size()}")
     return inputs, labels

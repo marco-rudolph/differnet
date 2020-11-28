@@ -9,6 +9,8 @@ import config as c
 from freia_funcs import permute_layer, glow_coupling_layer, F_fully_connected, ReversibleGraphNet, OutputNode, \
     InputNode, Node
 
+import json
+
 WEIGHT_DIR = './weights'
 MODEL_DIR = './models'
 
@@ -68,3 +70,11 @@ def load_weights(model, filename):
     path = os.path.join(WEIGHT_DIR, filename)
     model.load_state_dict(torch.load(path))
     return model
+
+
+def save_parameters(model_parameters, filename):
+    if not os.path.exists(MODEL_DIR):
+        os.makedirs(MODEL_DIR)
+
+    with open(MODEL_DIR + '/' + filename + '.json', 'w') as jsonfile:
+        jsonfile.write(json.dumps(model_parameters, indent=4))

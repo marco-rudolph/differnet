@@ -54,7 +54,7 @@ class DatasetFolderMultiTransform(DatasetFolder):
                     # print(f"i={i}: calling transform({sample})")
             samples = torch.stack(samples, dim=0)
         if self.target_transform is not None:
-            print(f"calling target_transform({target})")
+            # print(f"calling target_transform({target})")
             target = self.target_transform(target)
         return samples, target
 
