@@ -9,14 +9,16 @@ import cv2
 import numpy as np
 from datetime import datetime
 
+TRANSFORM_DIR = "./transform/"
+
 def TransformShow(name="img", wait=100):
     def transform_show(img):
         # path = "transform/"
         # now = datetime.now()
         # dt_string = now.strftime("%d%m%Y%H%M%S")
         # cv2.imwrite(path + 'all_transform_' + dt_string + '.jpg', np.array(img))
-        cv2.imshow(name, np.array(img))
-        cv2.waitKey(wait)
+        # cv2.imshow(name, np.array(img))
+        # cv2.waitKey(wait)
         return img
 
     return transform_show
@@ -25,20 +27,24 @@ def cropImage():
     def crop_image(img):
         x,y,w,h = shrinkEdges(img.size)
         rs = transforms.functional.crop(img,y,x,h,w)
-        # path = "transform/"
-        # now = datetime.now()
-        # dt_string = now.strftime("%d%m%Y%H%M%S")
-        # cv2.imwrite(path + 'transform_' + dt_string + '.jpg', np.array(rs))
+
+        if not os.path.exists(TRANSFORM_DIR):
+            os.makedirs(TRANSFORM_DIR)
+
+        now = datetime.now()
+        dt_string = now.strftime("%d%m%Y%H%M%S")
+        # cv2.imwrite(TRANSFORM_DIR + 'transform_' + dt_string + '.jpg', np.array(rs))
         return rs
 
     return crop_image
 
+
 def shrinkEdges(img_size):
     width, height = img_size
-    shrink_scale_top = 0.2
-    shrink_scale_bot = 0.05
-    shrink_scale_left = 0.05
-    shrink_scale_right = 0.05
+    shrink_scale_top = c.crop_top
+    shrink_scale_bot = c.crop_bottom
+    shrink_scale_left = c.crop_left
+    shrink_scale_right = c.crop_right
     top_reduction = shrink_scale_top * width
     bot_reduction = shrink_scale_bot * width
     left_reduction = shrink_scale_left * height
@@ -47,10 +53,11 @@ def shrinkEdges(img_size):
     new_width = int(width - top_reduction - bot_reduction)
     new_ul_x = int(top_reduction)
     new_ul_y = int(right_reduction)
-    print(
-        f"shrinking {0, 0, width, height} to {new_ul_x, new_ul_y, new_width, new_height} by ({new_width/width:.2f}, {new_height/height:.2f})"
-    )
+    # print(
+    #    f"shrinking {0, 0, width, height} to {new_ul_x, new_ul_y, new_width, new_height} by ({new_width/width:.2f}, {new_height/height:.2f})"
+    #)
     return new_ul_x, new_ul_y, new_width, new_height
+
 
 def t2np(tensor):
     '''pytorch tensor -> numpy array'''

@@ -5,3 +5,4 @@ torch>=1.00
 torchvision>=0.2.2
 matplotlib>=3.0.3
 tqdm>=4.40.2
+opencv-python

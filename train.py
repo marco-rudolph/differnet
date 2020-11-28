@@ -105,6 +105,7 @@ def train(train_loader, validate_loader):
             model_parameters['AUROC'] = AUROC
 
             save_parameters(model_parameters, save_name_pre + '_epoch-' + str(epoch))
+
             plt.figure()
             lw = 2
             plt.figure(figsize=(10, 10))
@@ -119,7 +120,7 @@ def train(train_loader, validate_loader):
             plt.legend(loc="lower right")
             now = datetime.now()
             dt_string = now.strftime("%d%m%Y%H%M%S")
-            plt.savefig('ROC_' + dt_string + '.jpg')
+            plt.savefig(save_name_pre + '_AUROC_' + dt_string + '.jpg')
 
             with open('models/' + c.modelname + '.json', 'w') as jsonfile:
                 jsonfile.write(json.dumps(model_parameters))

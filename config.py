@@ -27,11 +27,11 @@ transf_contrast = 0.0
 transf_saturation = 0.0
 norm_mean, norm_std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
 
-rotation_degree = 5
-crop_top = 0.0
-crop_left = 0.0
-crop_bottom = 0.0
-crop_right = 0.0
+rotation_degree = 10
+crop_top = 0.05
+crop_left = 0.05
+crop_bottom = 0.2
+crop_right = 0.05
 
 # network hyperparameters
 n_scales = 3 # number of scales at which features are extracted, img_size is the highest - others are //2, //4,...
