@@ -6,12 +6,8 @@ from tqdm import tqdm
 
 import config as c
 from localization import export_gradient_maps
-from model import DifferNet, save_model, save_parameters, save_weights
+from model import DifferNet, save_model, save_weights, save_parameters, save_roc_plot
 from utils import *
-
-from datetime import datetime
-import matplotlib.pyplot as plt
-import json
 
 class Score_Observer:
     '''Keeps an eye on the current and highest score so far'''
@@ -40,7 +36,7 @@ def train(train_loader, validate_loader):
     optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
     model.to(c.device)
 
-    save_name_pre = '{}_{}_{}_{}_{}_{}'.format(c.modelname, c.rotation_degree,
+    save_name_pre = '{}_{}_{:.2f}_{:.2f}_{:.2f}_{:.2f}'.format(c.modelname, c.rotation_degree,
                                                c.crop_top, c.crop_left, c.crop_bottom, c.crop_right)
 
     score_obs = Score_Observer('AUROC')
@@ -104,26 +100,8 @@ def train(train_loader, validate_loader):
             model_parameters['thresholds'] = thresholds.tolist()
             model_parameters['AUROC'] = AUROC
 
-            save_parameters(model_parameters, save_name_pre + '_epoch-' + str(epoch))
-
-            plt.figure()
-            lw = 2
-            plt.figure(figsize=(10, 10))
-            plt.plot(fpr.tolist(), tpr.tolist(), color='darkorange',
-                     lw=lw, label='ROC curve')
-            plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-            plt.xlim([0.0, 1.0])
-            plt.ylim([0.0, 1.0])
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title('ROC Curve')
-            plt.legend(loc="lower right")
-            now = datetime.now()
-            dt_string = now.strftime("%d%m%Y%H%M%S")
-            plt.savefig(save_name_pre + '_AUROC_' + dt_string + '.jpg')
-
-            with open('models/' + c.modelname + '.json', 'w') as jsonfile:
-                jsonfile.write(json.dumps(model_parameters))
+            save_parameters(model_parameters, save_name_pre + "_{:.4f}".format(AUROC))
+            save_roc_plot(fpr, tpr, save_name_pre + "_{:.4f}".format(AUROC))
 
             if c.verbose:
                 print('Epoch: {:d} \t validate_loss: {:.4f}'.format(epoch, test_loss))

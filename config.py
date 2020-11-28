@@ -30,7 +30,7 @@ norm_mean, norm_std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
 rotation_degree = 10
 crop_top = 0.05
 crop_left = 0.05
-crop_bottom = 0.2
+crop_bottom = 0.1
 crop_right = 0.05
 
 # network hyperparameters
@@ -51,13 +51,13 @@ batch_size_test = batch_size * n_transforms // n_transforms_test
 
 # total epochs = meta_epochs * sub_epochs
 # evaluation after <sub_epochs> epochs
-meta_epochs = 2
+meta_epochs = 3
 sub_epochs = 8
 
 # output settings
 verbose = True
 grad_map_viz = True
 hide_tqdm_bar = True
-save_model = True
+save_model = False
 
 target_tpr = 0.85
