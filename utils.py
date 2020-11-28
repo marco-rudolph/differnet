@@ -1,51 +1,54 @@
 import os
 import torch
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
 import config as c
 from multi_transform_loader import ImageFolderMultiTransform
 
-import random
 import cv2
 import numpy as np
 from datetime import datetime
 
 def TransformShow(name="img", wait=100):
     def transform_show(img):
+        # path = "transform/"
+        # now = datetime.now()
+        # dt_string = now.strftime("%d%m%Y%H%M%S")
+        # cv2.imwrite(path + 'all_transform_' + dt_string + '.jpg', np.array(img))
         cv2.imshow(name, np.array(img))
         cv2.waitKey(wait)
         return img
 
     return transform_show
 
-def randomCrop():
-    def random_crop(img):
-        x,y,w,h = random_shrink2(img.size)
+def cropImage():
+    def crop_image(img):
+        x,y,w,h = shrinkEdges(img.size)
         rs = transforms.functional.crop(img,y,x,h,w)
-        path = 'cropped/'
-        now = datetime.now()
-        dt_string = now.strftime("%d%m%Y%H%M%S")
-        cv2.imwrite(path + 'transform_' + dt_string + '.jpg', np.array(rs))
+        # path = "transform/"
+        # now = datetime.now()
+        # dt_string = now.strftime("%d%m%Y%H%M%S")
+        # cv2.imwrite(path + 'transform_' + dt_string + '.jpg', np.array(rs))
         return rs
 
-    return random_crop
+    return crop_image
 
-def random_shrink2(img_size):
+def shrinkEdges(img_size):
     width, height = img_size
-    center_x = int(width / 2)
-    center_y = int(height / 2)
-    shrink_scaleT = 0.2
-    shrink_scale = 0.05
-    top_reduction = shrink_scaleT * height
-    bot_reduction = shrink_scale * height
-    lr_reduction = shrink_scale * width
-    new_height = int(height - top_reduction - bot_reduction)
-    new_width = int(width - 2*lr_reduction)
-    new_ul_x = int(center_x - new_width / 2)
-    new_ul_y = int(bot_reduction)
+    shrink_scale_top = 0.2
+    shrink_scale_bot = 0.05
+    shrink_scale_left = 0.05
+    shrink_scale_right = 0.05
+    top_reduction = shrink_scale_top * width
+    bot_reduction = shrink_scale_bot * width
+    left_reduction = shrink_scale_left * height
+    right_reduction = shrink_scale_right * height
+    new_height = int(height - left_reduction - right_reduction)
+    new_width = int(width - top_reduction - bot_reduction)
+    new_ul_x = int(top_reduction)
+    new_ul_y = int(right_reduction)
     print(
-        f"shrinking ({0, 0, width, height}) to ({new_ul_x, new_ul_y, new_width, new_height})"
+        f"shrinking {0, 0, width, height} to {new_ul_x, new_ul_y, new_width, new_height} by ({new_width/width:.2f}, {new_height/height:.2f})"
     )
     return new_ul_x, new_ul_y, new_width, new_height
 
@@ -121,8 +124,8 @@ def load_datasets(dataset_path, class_name, test=False):
         augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
                                                            saturation=c.transf_saturation)]
 
-    tfs = [randomCrop(), transforms.Resize(c.img_size)] \
-          + augmentative_transforms + [ TransformShow("", 100), transforms.ToTensor(), transforms.Normalize(c.norm_mean, c.norm_std)]
+    tfs = [cropImage(), transforms.Resize(c.img_size)] \
+          + augmentative_transforms + [ TransformShow("Transformed Image", 100), transforms.ToTensor(), transforms.Normalize(c.norm_mean, c.norm_std)]
 
     transform_train = transforms.Compose(tfs)
 
