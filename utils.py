@@ -39,24 +39,23 @@ def cropImage():
 
     return crop_image
 
-
 def shrinkEdges(img_size):
     width, height = img_size
     shrink_scale_top = c.crop_top
     shrink_scale_bot = c.crop_bottom
     shrink_scale_left = c.crop_left
     shrink_scale_right = c.crop_right
-    top_reduction = shrink_scale_top * width
-    bot_reduction = shrink_scale_bot * width
-    left_reduction = shrink_scale_left * height
-    right_reduction = shrink_scale_right * height
-    new_height = int(height - left_reduction - right_reduction)
-    new_width = int(width - top_reduction - bot_reduction)
-    new_ul_x = int(top_reduction)
-    new_ul_y = int(right_reduction)
+    left_reduction = shrink_scale_left * width
+    right_reduction = shrink_scale_right * width
+    top_reduction = shrink_scale_top * height
+    bot_reduction = shrink_scale_bot * height
+    new_height = int(height - top_reduction - bot_reduction)
+    new_width = int(width - left_reduction - right_reduction)
+    new_ul_x = int(left_reduction)
+    new_ul_y = int(top_reduction)
     # print(
-    #    f"shrinking {0, 0, width, height} to {new_ul_x, new_ul_y, new_width, new_height} by ({new_width/width:.2f}, {new_height/height:.2f})"
-    #)
+    #    f"shrinking {0, 0, width, height} to {new_ul_x, new_ul_y, new_width, new_height}"
+    # )
     return new_ul_x, new_ul_y, new_width, new_height
 
 
@@ -133,7 +132,7 @@ def load_datasets(dataset_path, class_name, test=False):
                                                            saturation=c.transf_saturation)]
 
     tfs = [cropImage(), transforms.Resize(c.img_size)] \
-          + augmentative_transforms + [ TransformShow("Transformed Image", 100), transforms.ToTensor(), transforms.Normalize(c.norm_mean, c.norm_std)]
+          + augmentative_transforms + [ TransformShow("Transformed Image", 10), transforms.ToTensor(), transforms.Normalize(c.norm_mean, c.norm_std)]
 
     transform_train = transforms.Compose(tfs)
 
