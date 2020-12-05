@@ -46,6 +46,14 @@ for i in range(c.num_videos):
             xbr = boxesList[frameList.index(j)][3]
             label = 'good' if labelList[frameList.index(j)] == 'bottle' else 'defect'
 
+            # draw bounding box on original frames
+            if label != 'defect':
+                cv2.rectangle(frame, (xtl, ytl), (xbr, ybr), (0, 255, 0), 5)
+            else:
+                cv2.rectangle(frame, (xtl, ytl), (xbr, ybr), (255, 0, 0), 5)
+                #cv2.imshow("Show", frame)
+                #cv2.waitKey()
+                #cv2.destroyAllWindows()
             # Crop the frames with the bounding box position info
             crop_frame = frame[int(ytl*(1+shrink_percentage)):int(ybr*(1-shrink_percentage)),
                          int(xtl*(1+shrink_percentage)):int(xbr*(1-shrink_percentage))]
