@@ -33,7 +33,8 @@ def cropImage():
 
         now = datetime.now()
         dt_string = now.strftime("%d%m%Y%H%M%S")
-        # cv2.imwrite(TRANSFORM_DIR + 'transform_' + dt_string + '.jpg', np.array(rs))
+        if(c.save_transformed_image):
+            cv2.imwrite(TRANSFORM_DIR + 'transform_' + dt_string + '.jpg', np.array(rs))
         return rs
 
     return crop_image
