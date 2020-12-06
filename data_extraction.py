@@ -50,7 +50,7 @@ for i in range(c.num_videos):
             if label != 'defect':
                 cv2.rectangle(frame, (xtl, ytl), (xbr, ybr), (0, 255, 0), 5)
             else:
-                cv2.rectangle(frame, (xtl, ytl), (xbr, ybr), (255, 0, 0), 5)
+                cv2.rectangle(frame, (xtl, ytl), (xbr, ybr), (0, 0, 255), 5)
                 #cv2.imshow("Show", frame)
                 #cv2.waitKey()
                 #cv2.destroyAllWindows()

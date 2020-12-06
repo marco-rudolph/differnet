@@ -8,6 +8,8 @@ import config as c
 from localization import export_gradient_maps
 from model import DifferNet, save_model, save_weights, save_parameters, save_roc_plot
 from utils import *
+from operator import itemgetter
+import cv2
 
 class Score_Observer:
     '''Keeps an eye on the current and highest score so far'''
@@ -139,20 +141,20 @@ def test(model, model_parameters, test_loader):
     test_loss = list()
     test_z = list()
     test_labels = list()
-    # with torch.no_grad():
-    for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):
-        inputs, labels = preprocess_batch(data)
-        # inputs = Variable(inputs, requires_grad=True)
-        print(f"i={i}: labels={labels}, size of inputs={inputs.size()}")
-        # print(f"inputs={inputs}")
-        z = model(inputs)
-        # print(f"z={z}")
-        loss = get_loss(z, model.nf.jacobian(run_forward=False))
-        test_z.append(z)
-        test_loss.append(t2np(loss))
-        test_labels.append(t2np(labels))
+    with torch.no_grad():
+        for i, data in enumerate(tqdm(test_loader, disable=c.hide_tqdm_bar)):
+            inputs, labels = preprocess_batch(data)
+            # inputs = Variable(inputs, requires_grad=True)
+            print(f"i={i}: labels={labels}, size of inputs={inputs.size()}")
+            # print(f"inputs={inputs}")
+            z = model(inputs)
+            # print(f"z={z}")
+            loss = get_loss(z, model.nf.jacobian(run_forward=False))
+            test_z.append(z)
+            test_loss.append(t2np(loss))
+            test_labels.append(t2np(labels))
 
-    test_loss = np.mean(np.array(test_loss))
+        test_loss = np.mean(np.array(test_loss))
     if c.verbose:
         print('Epoch: {:d} \t test_loss: {:.4f}'.format(epoch, test_loss))
 
@@ -182,3 +184,102 @@ def test(model, model_parameters, test_loader):
 
     print(f"test_labels={test_labels}, is_anomaly={is_anomaly},anomaly_score={anomaly_score},is_anomaly_detected={is_anomaly_detected}")
     print(f"target_tpr={c.target_tpr}, target_threshold={target_threshold}, test_accuracy={test_accuracy}")
+
+def predict(model, model_parameters, predict_loader):
+    print("Predicting")
+    optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
+    model.to(c.device)
+    model.eval()
+    if c.verbose:
+        print('\nCompute loss and scores on test set:')
+    test_z = list()
+    test_labels = list()
+    predictions = []
+    with torch.no_grad():
+        for i, data in enumerate(predict_loader):
+            inputs, labels = preprocess_batch(data)
+            frame = int(predict_loader.dataset.imgs[i][0].split('frame',1)[1].split('-')[0])
+            print(f"i={i}: frame#={frame}, labels={labels.cpu().numpy()[0]}, size of inputs={inputs.size()}")
+            predictions.append([frame, predict_loader.dataset.imgs[i][0], labels.cpu().numpy()[0], 0])
+            z = model(inputs)
+            test_z.append(z)
+            test_labels.append(t2np(labels))
+
+    test_labels = np.concatenate(test_labels)
+    is_anomaly = np.array([0 if l == 0 else 1 for l in test_labels])
+
+    z_grouped = torch.cat(test_z, dim=0).view(-1, c.n_transforms_test, c.n_feat)
+    anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
+
+    for i in range(len(model_parameters['tpr'])):
+        if model_parameters['tpr'][i] > c.target_tpr:
+            target_threshold = model_parameters['thresholds'][i]
+            break
+
+    is_anomaly_detected = []
+    i = 0
+    for l in anomaly_score:
+        if l < target_threshold:
+            is_anomaly_detected.append(0)
+            predictions[i][3] = 0
+        else:
+            is_anomaly_detected.append(1)
+            predictions[i][3] = 1
+        i += 1
+    predictions = sorted(predictions, key=itemgetter(0))
+
+    # calculate test accuracy
+    error_count = 0
+    for i in range(len(is_anomaly)):
+        if is_anomaly[i] != is_anomaly_detected[i]:
+            error_count += 1
+
+    test_accuracy = 1 - float(error_count) / len(is_anomaly)
+
+    # print(f"test_labels={test_labels}, is_anomaly={is_anomaly},anomaly_score={anomaly_score},is_anomaly_detected={is_anomaly_detected}")
+    print(f"target_tpr={c.target_tpr}, target_threshold={target_threshold}, test_accuracy={test_accuracy}")
+    if c.grad_map_viz:
+        print("saving gradient maps...")
+        export_gradient_maps(model, predict_loader, optimizer, -1)
+
+    # visualize the prediction result
+    if c.visualization:
+        for i in range(len(predictions)):
+            # load file path
+            file_path = predictions[i][1]
+            idx = file_path.index('video')
+            file_path = file_path[:idx] + 'original-' + file_path[idx:]
+            file_path = file_path.replace("predict\\test", "zerobox-2010-1-original")
+
+            # rotate and resize image
+            img = cv2.imread(file_path)
+            img = cv2.rotate(img, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
+            img = cv2.resize(img, (600, 900))
+
+            # display prediction on each frame
+            font = cv2.FONT_HERSHEY_DUPLEX
+            font_size = 0.7
+
+            if (predictions[i][3] == 1):
+                img = cv2.putText(img, 'prediction: defective', (300, 810), font,
+                                  font_size, (0, 0, 255), 1, cv2.LINE_AA)
+            else:
+                img = cv2.putText(img, 'prediction: good', (300, 810), font,
+                                  font_size, (0, 255, 0), 1, cv2.LINE_AA)
+
+            if (predictions[i][2] == 1):
+                img = cv2.putText(img, 'ground truth: defective', (300, 830), font,
+                                  font_size, (0, 0, 255), 1, cv2.LINE_AA)
+            else:
+                img = cv2.putText(img, 'ground truth: good', (300, 830), font,
+                                  font_size, (0, 255, 0), 1, cv2.LINE_AA)
+
+            img = cv2.putText(img, 'frame #: ' + str(predictions[i][0]), (300, 850), font,
+                              font_size, (0, 255, 0), 1, cv2.LINE_AA)
+            img = cv2.putText(img, 'accuracy: ' + str(test_accuracy), (300, 870), font,
+                              font_size, (0, 255, 0), 1, cv2.LINE_AA)
+            img = cv2.putText(img, 'threshold: ' + str(target_threshold), (300, 890), font,
+                              font_size, (0, 255, 0), 1, cv2.LINE_AA)
+            # show results
+            cv2.imshow('window', img)
+            cv2.waitKey(220)
