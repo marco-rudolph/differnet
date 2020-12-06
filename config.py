@@ -45,9 +45,9 @@ n_feat = 256 * n_scales # do not change except you change the feature extractor
 
 # dataloader parameters
 n_transforms = 4 # number of transformations per sample in training
-n_transforms_test = 16 # number of transformations per sample in testing
+n_transforms_test = 1 # number of transformations per sample in testing
 batch_size = 4 # actual batch size is this value multiplied by n_transforms(_test)
-batch_size_test = batch_size * n_transforms // n_transforms_test
+batch_size_test = 1
 
 # total epochs = meta_epochs * sub_epochs
 # evaluation after <sub_epochs> epochs
@@ -60,5 +60,5 @@ grad_map_viz = False
 hide_tqdm_bar = True
 save_model = True
 save_transformed_image = True
-
+visualization = True
 target_tpr = 0.85

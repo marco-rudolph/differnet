@@ -160,7 +160,7 @@ def make_dataloaders(trainset, validateset, testset, test=False):
         validateloader = torch.utils.data.DataLoader(validateset, pin_memory=True, batch_size=c.batch_size, shuffle=True,
                                                   drop_last=False)
     else:
-        testloader = torch.utils.data.DataLoader(testset, pin_memory=True, batch_size=c.batch_size_test, shuffle=True,
+        testloader = torch.utils.data.DataLoader(testset, pin_memory=True, batch_size=c.batch_size_test, shuffle=False,
                                                  drop_last=False)
 
     return trainloader, validateloader, testloader
