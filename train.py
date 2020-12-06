@@ -200,7 +200,7 @@ def predict(model, model_parameters, predict_loader):
             inputs, labels = preprocess_batch(data)
             frame = int(predict_loader.dataset.imgs[i][0].split('frame',1)[1].split('-')[0])
             print(f"i={i}: frame#={frame}, labels={labels.cpu().numpy()[0]}, size of inputs={inputs.size()}")
-            predictions.append([frame, predict_loader.dataset.imgs[i][0], labels.cpu().numpy()[0], 0])
+            predictions.append([frame, predict_loader.dataset.imgs[i][0], labels.cpu().numpy()[0], 0, 0])
             z = model(inputs)
             test_z.append(z)
             test_labels.append(t2np(labels))
@@ -219,6 +219,7 @@ def predict(model, model_parameters, predict_loader):
     is_anomaly_detected = []
     i = 0
     for l in anomaly_score:
+        predictions[i][4] = l
         if l < target_threshold:
             is_anomaly_detected.append(0)
             predictions[i][3] = 0
@@ -258,27 +259,27 @@ def predict(model, model_parameters, predict_loader):
 
             # display prediction on each frame
             font = cv2.FONT_HERSHEY_DUPLEX
-            font_size = 0.7
-
+            font_size = 0.65
+            pos_x = 330
             if (predictions[i][3] == 1):
-                img = cv2.putText(img, 'prediction: defective', (300, 810), font,
+                img = cv2.putText(img, 'prediction: defective', (pos_x, 810), font,
                                   font_size, (0, 0, 255), 1, cv2.LINE_AA)
             else:
-                img = cv2.putText(img, 'prediction: good', (300, 810), font,
+                img = cv2.putText(img, 'prediction: good', (pos_x, 810), font,
                                   font_size, (0, 255, 0), 1, cv2.LINE_AA)
 
             if (predictions[i][2] == 1):
-                img = cv2.putText(img, 'ground truth: defective', (300, 830), font,
+                img = cv2.putText(img, 'ground truth: defective', (pos_x, 830), font,
                                   font_size, (0, 0, 255), 1, cv2.LINE_AA)
             else:
-                img = cv2.putText(img, 'ground truth: good', (300, 830), font,
+                img = cv2.putText(img, 'ground truth: good', (pos_x, 830), font,
                                   font_size, (0, 255, 0), 1, cv2.LINE_AA)
 
-            img = cv2.putText(img, 'frame #: ' + str(predictions[i][0]), (300, 850), font,
+            img = cv2.putText(img, 'anomaly score: ' + str(round(predictions[i][4], 4)), (pos_x, 850), font,
                               font_size, (0, 255, 0), 1, cv2.LINE_AA)
-            img = cv2.putText(img, 'accuracy: ' + str(test_accuracy), (300, 870), font,
+            img = cv2.putText(img, 'threshold: ' + str(round(target_threshold, 4)), (pos_x, 870), font,
                               font_size, (0, 255, 0), 1, cv2.LINE_AA)
-            img = cv2.putText(img, 'threshold: ' + str(target_threshold), (300, 890), font,
+            img = cv2.putText(img, 'accuracy: ' + str(round(test_accuracy * 100, 2)) + '%', (pos_x, 890), font,
                               font_size, (0, 255, 0), 1, cv2.LINE_AA)
             # show results
             cv2.imshow('window', img)
