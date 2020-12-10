@@ -13,6 +13,7 @@ from freia_funcs import permute_layer, glow_coupling_layer, F_fully_connected, R
 from datetime import datetime
 import matplotlib.pyplot as plt
 import json
+import cv2
 
 WEIGHT_DIR = './weights'
 MODEL_DIR = './models'
@@ -61,12 +62,19 @@ class MaskDifferNet(nn.Module):
         # output a mask. refer to: https://discuss.pytorch.org/t/binary-mask-output-by-network/27458/5
         # x = Variable(x, requires_grad=False)
         # loss = loss_function(y[0], x, y[1], y[2])
-        mask = torch.relu(torch.sign(torch.sigmoid(y[0]) - 0.5))
+        mask = torch.sign(torch.sigmoid(y[0]) - 0.5)
 
         # apply mask to the input image.
         # refer to: https://stackoverflow.com/questions/58521595/masking-tensor-of-same-shape-in-pytorch
         mask = mask.view(x.shape)
+        mask_img = np.reshape(np.squeeze(mask.cpu().detach().numpy()), (448, 448, 3))
+        cv2.imshow('mask image', mask_img)
+        cv2.waitKey(100)
         z = x * mask.int().float()
+        z_img = np.reshape(np.squeeze(z.cpu().detach().numpy()), (448, 448, 3))
+        cv2.imshow('z image', z_img)
+        cv2.waitKey(100)
+
 
         output = self.differnet(z)
 
