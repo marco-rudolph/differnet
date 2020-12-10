@@ -13,8 +13,8 @@ torch.cuda.set_device(0)
 
 # data settings
 dataset_path = "dataset"
-class_name = "zerobox-2010-2-zijian"
-modelname = "zerobox-2010-2-zijian"
+class_name = "Experiment 3.1"
+modelname = "Experiment 3.1_0_0.05_0.15_0.05_0.15"
 
 img_size = (448, 448)
 img_dims = [3] + list(img_size)
@@ -27,11 +27,11 @@ transf_contrast = 0.0
 transf_saturation = 0.0
 norm_mean, norm_std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
 
-rotation_degree = 10
+rotation_degree = 0
 crop_top = 0.05
-crop_left = 0.05
-crop_bottom = 0.1
-crop_right = 0.05
+crop_left = 0.15
+crop_bottom = 0.05
+crop_right = 0.15
 
 # network hyperparameters
 n_scales = 3 # number of scales at which features are extracted, img_size is the highest - others are //2, //4,...
@@ -56,8 +56,9 @@ sub_epochs = 8
 
 # output settings
 verbose = True
-grad_map_viz = True
+grad_map_viz = False
 hide_tqdm_bar = True
-save_model = False
+save_model = True
+save_transformed_image = True
 
 target_tpr = 0.85
