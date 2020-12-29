@@ -58,17 +58,12 @@ class MaskDifferNet(nn.Module):
 
     def forward(self, x):
         y = self.vae(x)
-        # y_grayscale = y[0].numpy + y[1].numpy + y[2].numpy
 
-        # output a mask. refer to: https://discuss.pytorch.org/t/binary-mask-output-by-network/27458/5
-        # x = Variable(x, requires_grad=False)
-        # loss = loss_function(y[0], x, y[1], y[2])
         mask = torch.relu(torch.sign(torch.sigmoid(y[0]) - 0.5))
         y_img = torch.squeeze(y[0].view(x.shape)).permute(2, 1, 0).cpu().detach().numpy()
         cv2.imshow('VAE output', y_img)
         cv2.waitKey(1)
-        # apply mask to the input image.
-        # refer to: https://stackoverflow.com/questions/58521595/masking-tensor-of-same-shape-in-pytorch
+
         mask = mask.view(x.shape)
         x_img = torch.squeeze(x).permute(2, 1, 0).cpu().detach().numpy()
         cv2.imshow('original input', x_img)
@@ -79,7 +74,7 @@ class MaskDifferNet(nn.Module):
         cv2.imshow('original + mask', z_img)
         cv2.waitKey(1)
 
-        output = self.differnet(z)
+        output = self.differnet(y[0].view(x.shape))
 
         return output
 
