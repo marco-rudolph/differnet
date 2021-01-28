@@ -29,7 +29,7 @@ Please report us if you have issues when using the code.
 
 ## Data
 
-The given dummy dataset shows how the implementation expects the construction of a dataset. Coincidentally, the [MVTec AD dataset](https://www.mvtec.com/de/unternehmen/forschung/datasets/mvtec-ad/) is constructed in this way.
+The given dummy dataset shows how the implementation expects the construction of a dataset. Coincidentally, the [MVTec AD dataset](https://www.mvtec.com/company/research/datasets/mvtec-ad) is constructed in this way.
 
 Set the variables _dataset_path_ and _class_name_ in _config.py_ to run experiments on a dataset of your choice. The expected structure of the data is as follows:
 
