@@ -201,7 +201,9 @@ def predict(model, model_parameters, predict_loader):
     with torch.no_grad():
         for i, data in enumerate(predict_loader):
             inputs, labels = preprocess_batch(data)
-            frame = int(predict_loader.dataset.imgs[i][0].split('frame',1)[1].split('-')[0])
+            if c.frame_name_is_given:
+                frame = int(predict_loader.dataset.imgs[i][0].split('frame',1)[1].split('-')[0])
+            frame = i
             print(f"i={i}: frame#={frame}, labels={labels.cpu().numpy()[0]}, size of inputs={inputs.size()}")
             predictions.append([frame, predict_loader.dataset.imgs[i][0], labels.cpu().numpy()[0], 0, 0])
             z = model(inputs)

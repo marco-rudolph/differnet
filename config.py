@@ -60,5 +60,6 @@ grad_map_viz = False
 hide_tqdm_bar = True
 save_model = True
 save_transformed_image = True
-visualization = True
+visualization = False
+frame_name_is_given = False
 target_tpr = 0.85
