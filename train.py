@@ -204,7 +204,7 @@ def predict(model, model_parameters, predict_loader):
             if c.frame_name_is_given:
                 frame = int(predict_loader.dataset.imgs[i][0].split('frame',1)[1].split('-')[0])
             frame = i
-            print(f"i={i}: frame#={frame}, labels={labels.cpu().numpy()[0]}, size of inputs={inputs.size()}")
+            #print(f"i={i}: frame#={frame}, labels={labels.cpu().numpy()[0]}, size of inputs={inputs.size()}")
             predictions.append([frame, predict_loader.dataset.imgs[i][0], labels.cpu().numpy()[0], 0, 0])
             z = model(inputs)
             test_z.append(z)
@@ -242,11 +242,31 @@ def predict(model, model_parameters, predict_loader):
 
     test_accuracy = 1 - float(error_count) / len(is_anomaly)
 
+    for i in range(len(predictions)):
+        msg = 'frame: ' + str(i) + '. '
+        if (predictions[i][3] == 1):
+            msg += 'prediction: defective. '
+        else:
+            msg += 'prediction: good. '
+
+        if (predictions[i][2] == 1):
+            msg += 'ground truth: defective. '
+        else:
+            msg += 'ground truth: good. '
+
+        msg += 'anomaly score: ' + str(round(predictions[i][4], 4)) + '. '
+        msg += 'threshold: ' + str(round(target_threshold, 4)) + '. '
+        msg += 'accuracy: ' + str(round(test_accuracy * 100, 2)) + '%'
+
+        print(msg)
+
     # print(f"test_labels={test_labels}, is_anomaly={is_anomaly},anomaly_score={anomaly_score},is_anomaly_detected={is_anomaly_detected}")
     print(f"target_tpr={c.target_tpr}, target_threshold={target_threshold}, test_accuracy={test_accuracy}")
     if c.grad_map_viz:
         print("saving gradient maps...")
         export_gradient_maps(model, predict_loader, optimizer, -1)
+
+
 
     # visualize the prediction result
     if c.visualization:
