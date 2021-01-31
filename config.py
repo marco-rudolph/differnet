@@ -13,8 +13,8 @@ torch.cuda.set_device(0)
 
 # data settings
 dataset_path = "dataset"
-class_name = "Experiment 3.1"
-modelname = "Experiment 3.2_0_0.05_0.15_0.05_0.15"
+class_name = "Experiment_3.1"
+modelname = "Experiment_3.2_0_0.05_0.15_0.05_0.15"
 
 img_size = (448, 448)
 img_dims = [3] + list(img_size)
