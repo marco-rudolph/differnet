@@ -35,7 +35,7 @@ def save_imgs(inputs, grad, cnt):
 
 def export_gradient_maps(model, testloader, optimizer, n_batches=1):
     plt.figure(figsize=(10, 10))
-    testloader.dataset.get_fixed = True
+    testloader.dataset.get_fixed = False
     cnt = 0
     degrees = -1 * np.arange(c.n_transforms_test) * 360.0 / c.n_transforms_test
 
@@ -50,13 +50,13 @@ def export_gradient_maps(model, testloader, optimizer, n_batches=1):
         loss.backward()
 
         grad = inputs.grad.view(-1, c.n_transforms_test, *inputs.shape[-3:])
-        grad = grad[labels > 0]
+        grad = grad[labels >= 0]
         if grad.shape[0] == 0:
             continue
         grad = t2np(grad)
 
         inputs = inputs.view(-1, c.n_transforms_test, *inputs.shape[-3:])[:, 0]
-        inputs = np.transpose(t2np(inputs[labels > 0]), [0, 2, 3, 1])
+        inputs = np.transpose(t2np(inputs[labels >= 0]), [0, 2, 3, 1])
         inputs_unnormed = np.clip(inputs * c.norm_std + c.norm_mean, 0, 1)
 
         for i_item in range(c.n_transforms_test):
