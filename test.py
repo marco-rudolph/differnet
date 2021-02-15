@@ -21,6 +21,6 @@ with open('models/' + c.modelname + '.json') as jsonfile:
 time_start = time.time()
 test(model, model_parameters, test_loader)
 time_end = time.time()
-time_c = time_end - time_start  # 运行所花时间
+time_c = time_end - time_start
+print("testing time cost: {:f} s".format(time_c))
 
-print("test time cost: {:f} s".format(time_c))
