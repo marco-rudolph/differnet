@@ -186,9 +186,9 @@ def test(model, model_parameters, test_loader):
     for i in range(len(predictions)):
         msg = 'frame: ' + str(i) + '. '
         if (predictions[i][3] == 1):
-            msg += 'testion: defective. '
+            msg += 'prediction: defective. '
         else:
-            msg += 'testion: good. '
+            msg += 'prediction: good. '
 
         if (predictions[i][2] == 1):
             msg += 'ground truth: defective. '
@@ -209,7 +209,7 @@ def test(model, model_parameters, test_loader):
 
 
 
-    # visualize the testion result
+    # visualize the prediction result
     if c.visualization:
         for i in range(len(predictions)):
             # load file path
@@ -223,15 +223,15 @@ def test(model, model_parameters, test_loader):
             img = cv2.rotate(img, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
             img = cv2.resize(img, (600, 900))
 
-            # display testion on each frame
+            # display prediction on each frame
             font = cv2.FONT_HERSHEY_DUPLEX
             font_size = 0.65
             pos_x = 330
             if (predictions[i][3] == 1):
-                img = cv2.putText(img, 'testion: defective', (pos_x, 810), font,
+                img = cv2.putText(img, 'prediction: defective', (pos_x, 810), font,
                                   font_size, (0, 0, 255), 1, cv2.LINE_AA)
             else:
-                img = cv2.putText(img, 'testion: good', (pos_x, 810), font,
+                img = cv2.putText(img, 'prediction: good', (pos_x, 810), font,
                                   font_size, (0, 255, 0), 1, cv2.LINE_AA)
 
             if (predictions[i][2] == 1):
