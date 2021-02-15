@@ -1,12 +1,8 @@
-import numpy as np
-import torch
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from tqdm import tqdm
-
-import config as c
 from localization import export_gradient_maps
-from model import DifferNet, save_model, save_weights, save_parameters, save_roc_plot, MaskDifferNet
+from model import DifferNet, save_model, save_weights, save_parameters, save_roc_plot
 from utils import *
 from operator import itemgetter
 import cv2
@@ -35,10 +31,8 @@ class Score_Observer:
 
 def train(train_loader, validate_loader):
     model = DifferNet()
-    optimizer = torch.optim.Adam([{'params': model.nf.parameters()}
-
-
-        ], lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
+    optimizer = torch.optim.Adam([{'params': model.nf.parameters()}], lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04,
+                                 weight_decay=1e-5)
     model.to(c.device)
 
     save_name_pre = '{}_{}_{:.2f}_{:.2f}_{:.2f}_{:.2f}'.format(c.modelname, c.rotation_degree,
