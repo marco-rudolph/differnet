@@ -99,8 +99,9 @@ def train(train_loader, validate_loader):
             model_parameters['thresholds'] = thresholds.tolist()
             model_parameters['AUROC'] = AUROC
 
-            save_parameters(model_parameters, save_name_pre + "_{:.4f}".format(AUROC))
-            save_roc_plot(fpr, tpr, save_name_pre + "_{:.4f}".format(AUROC))
+            if epoch == c.meta_epochs - 1:
+                save_parameters(model_parameters, c.modelname)
+                save_roc_plot(fpr, tpr, c.modelname + "_{:.4f}".format(AUROC))
 
             if c.verbose:
                 print('Epoch: {:d} \t validate_loss: {:.4f}'.format(epoch, test_loss))
@@ -118,8 +119,8 @@ def train(train_loader, validate_loader):
 
     if c.save_model:
         model.to('cpu')
-        save_model(model, save_name_pre + '.pth')
-        save_weights(model, save_name_pre + '.weights.pth')
+        save_model(model, c.modelname + '.pth')
+        save_weights(model, c.modelname + '.weights.pth')
 
     return model, model_parameters
 
