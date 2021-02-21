@@ -13,8 +13,8 @@ torch.cuda.set_device(0)
 
 # data settings
 dataset_path = "dataset"
-class_name = "Experiment_3.1"
-modelname = "Experiment_3.2_0_0.05_0.15_0.05_0.15"
+class_name = "Experiment_3.2"
+modelname = "Experiment_3.2_10epoch_239tainingdata_0.5BCS"
 
 img_size = (448, 448)
 img_dims = [3] + list(img_size)
@@ -22,16 +22,16 @@ add_img_noise = 0.01
 
 # transformation settings
 transf_rotations = True
-transf_brightness = 0.0
-transf_contrast = 0.0
-transf_saturation = 0.0
+transf_brightness = 0.5
+transf_contrast = 0.5
+transf_saturation = 0.5
 norm_mean, norm_std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
 
 rotation_degree = 0
-crop_top = 0.05
-crop_left = 0.15
-crop_bottom = 0.05
-crop_right = 0.15
+crop_top = 0.10
+crop_left = 0.10
+crop_bottom = 0.10
+crop_right = 0.10
 
 # network hyperparameters
 n_scales = 3 # number of scales at which features are extracted, img_size is the highest - others are //2, //4,...
@@ -51,12 +51,12 @@ batch_size_test = 1
 
 # total epochs = meta_epochs * sub_epochs
 # evaluation after <sub_epochs> epochs
-meta_epochs = 3
+meta_epochs = 10
 sub_epochs = 8
 
 # output settings
 verbose = True
-grad_map_viz = False
+grad_map_viz = True
 hide_tqdm_bar = True
 save_model = True
 save_transformed_image = True

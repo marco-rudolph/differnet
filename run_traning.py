@@ -3,7 +3,6 @@
 by Marco Rudolph, Bastian Wandt and Bodo Rosenhahn.
 For further information contact Marco Rudolph (rudolph@tnt.uni-hannover.de)'''
 
-import config as c
 from train import *
 from utils import load_datasets, make_dataloaders
 import time
@@ -14,7 +13,7 @@ train_loader, validate_loader, _ = make_dataloaders(train_set, validate_set, Non
 
 time_start = time.time()
 model, model_parameters = train(train_loader, validate_loader)
-#model, model_config = train(train_loader, None)
+
 time_end = time.time()
 time_c = time_end - time_start  # 运行所花时间
 print("train time cost: {:f} s".format(time_c))

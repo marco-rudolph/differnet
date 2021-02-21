@@ -28,7 +28,6 @@ class Score_Observer:
         print('{:s}: \t last: {:.4f} \t max: {:.4f} \t epoch_max: {:d}'.format(self.name, self.last, self.max_score,
                                                                                self.max_epoch))
 
-
 def train(train_loader, validate_loader):
     model = DifferNet()
     optimizer = torch.optim.Adam([{'params': model.nf.parameters()}], lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04,

@@ -3,8 +3,7 @@
 by Marco Rudolph, Bastian Wandt and Bodo Rosenhahn.
 For further information contact Marco Rudolph (rudolph@tnt.uni-hannover.de)'''
 
-import config as c
-from train import *
+from test import *
 from utils import load_datasets, make_dataloaders
 import time
 import gc
@@ -24,3 +23,9 @@ time_end = time.time()
 time_c = time_end - time_start
 print("testing time cost: {:f} s".format(time_c))
 
+# free memory
+del test_set
+del test_loader
+
+gc.collect()
+torch.cuda.empty_cache()
