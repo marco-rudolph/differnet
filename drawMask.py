@@ -27,6 +27,7 @@ for i, img in enumerate(imgs):
                 new_c.append([0, 0, 0])
             else:
                 # keep the green mask pixels in the img
+                # todo: increase mask area.
                 new_c.append([1, 1, 1])
         masked.append(new_c)
     masked = np.array(masked, dtype=np.uint8)
