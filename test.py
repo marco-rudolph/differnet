@@ -1,8 +1,7 @@
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
-from tqdm import tqdm
 from localization import export_gradient_maps
-from model import DifferNet, save_model, save_weights, save_parameters, save_roc_plot
+from model import save_roc_plot
 from utils import *
 from operator import itemgetter
 import cv2
@@ -34,6 +33,9 @@ def test(model, model_parameters, test_loader):
 
     z_grouped = torch.cat(test_z, dim=0).view(-1, c.n_transforms_test, c.n_feat)
     anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
+    AUROC = roc_auc_score(is_anomaly, anomaly_score)
+    fpr, tpr, thresholds = roc_curve(is_anomaly, anomaly_score)
+    save_roc_plot(fpr, tpr, c.modelname + "_{:.4f}_test".format(AUROC))
 
     for i in range(len(model_parameters['tpr'])):
         if model_parameters['tpr'][i] > c.target_tpr:
@@ -84,9 +86,6 @@ def test(model, model_parameters, test_loader):
     if c.grad_map_viz:
         print("saving gradient maps...")
         export_gradient_maps(model, test_loader, optimizer, -1)
-
-    # todo: add ROC curve here.
-
 
     # visualize the prediction result
     if c.visualization:
