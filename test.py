@@ -62,6 +62,7 @@ def test(model, model_parameters, test_loader):
             error_count += 1
 
     test_accuracy = 1 - float(error_count) / len(is_anomaly)
+    #todo: tpr/fpr display.
 
     for i in range(len(predictions)):
         msg = 'frame: ' + str(i) + '. '

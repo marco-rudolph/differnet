@@ -9,9 +9,12 @@ import time
 import gc
 import json
 
+c.transf_brightness = 0.0
+c.transf_contrast = 0.0
+c.transf_saturation = 0.0
+
 _, _, test_set = load_datasets(c.dataset_path, c.class_name, test=True)
 _, _, test_loader = make_dataloaders(None, None, test_set, test=True)
-
 model = torch.load('models/' + c.modelname + '.pth', map_location=torch.device('cpu'))
 
 with open('models/' + c.modelname + '.json') as jsonfile:
