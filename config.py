@@ -51,7 +51,7 @@ batch_size_test = 1
 
 # total epochs = meta_epochs * sub_epochs
 # evaluation after <sub_epochs> epochs
-meta_epochs = 10
+meta_epochs = 5
 sub_epochs = 8
 
 # output settings
