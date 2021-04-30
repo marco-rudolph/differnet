@@ -2,9 +2,37 @@ import os
 import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-
+from torchvision.transforms.functional import rotate
 import config as c
 from multi_transform_loader import ImageFolderMultiTransform
+
+
+def get_random_transforms():
+    augmentative_transforms = []
+    if c.transf_rotations:
+        augmentative_transforms += [transforms.RandomRotation(180)]
+    if c.transf_brightness > 0.0 or c.transf_contrast > 0.0 or c.transf_saturation > 0.0:
+        augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
+                                                           saturation=c.transf_saturation)]
+
+    tfs = [transforms.Resize(c.img_size)] + augmentative_transforms + [transforms.ToTensor(),
+                                                                       transforms.Normalize(c.norm_mean, c.norm_std)]
+
+    transform_train = transforms.Compose(tfs)
+    return transform_train
+
+
+def get_fixed_transforms(degrees):
+    cust_rot = lambda x: rotate(x, degrees, False, False, None)
+    augmentative_transforms = [cust_rot]
+    if c.transf_brightness > 0.0 or c.transf_contrast > 0.0 or c.transf_saturation > 0.0:
+        augmentative_transforms += [
+            transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
+                                   saturation=c.transf_saturation)]
+    tfs = [transforms.Resize(c.img_size)] + augmentative_transforms + [transforms.ToTensor(),
+                                                                       transforms.Normalize(c.norm_mean,
+                                                                                            c.norm_std)]
+    return transforms.Compose(tfs)
 
 
 def t2np(tensor):
@@ -71,17 +99,7 @@ def load_datasets(dataset_path, class_name):
             class_perm.append(class_idx)
             class_idx += 1
 
-    augmentative_transforms = []
-    if c.transf_rotations:
-        augmentative_transforms += [transforms.RandomRotation(180)]
-    if c.transf_brightness > 0.0 or c.transf_contrast > 0.0 or c.transf_saturation > 0.0:
-        augmentative_transforms += [transforms.ColorJitter(brightness=c.transf_brightness, contrast=c.transf_contrast,
-                                                           saturation=c.transf_saturation)]
-
-    tfs = [transforms.Resize(c.img_size)] + augmentative_transforms + [transforms.ToTensor(),
-                                                                       transforms.Normalize(c.norm_mean, c.norm_std)]
-
-    transform_train = transforms.Compose(tfs)
+    transform_train = get_random_transforms()
 
     trainset = ImageFolderMultiTransform(data_dir_train, transform=transform_train, n_transforms=c.n_transforms)
     testset = ImageFolderMultiTransform(data_dir_test, transform=transform_train, target_transform=target_transform,
