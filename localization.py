@@ -1,16 +1,11 @@
-import matplotlib as mpl
 import numpy as np
-from scipy.ndimage import rotate, gaussian_filter
 from torch.autograd import Variable
-#from torchvision.transforms.functional import rotate
-
 import config as c
 from utils import *
-
-mpl.use('Agg')
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
+from scipy.ndimage import rotate, gaussian_filter
 
 GRADIENT_MAP_DIR = './gradient_maps/'
 
