@@ -31,7 +31,10 @@ class DatasetFolderMultiTransform(DatasetFolder):
                  target_transform=None, is_valid_file=None, n_transforms=1):
         super(DatasetFolderMultiTransform, self).__init__(root, loader, extensions=extensions, transform=transform,
                                                           target_transform=target_transform)
-        classes, class_to_idx = self._find_classes(self.root)
+        try:
+            classes, class_to_idx = self.find_classes(self.root)
+        except:
+            classes, class_to_idx = self._find_classes(self.root)
         if is_valid_file is not None:
             extensions = None
         self.samples = make_dataset(self.root, class_to_idx, extensions)
